@@ -189,8 +189,8 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 body.nolog header+div{display:none}
 .lgw{min-height:calc(100vh - 150px);display:flex;align-items:center;justify-content:center;padding:28px 16px}
 .lgn{width:100%;max-width:420px!important;margin:0 auto!important;background:var(--panel);border-radius:24px;padding:30px 24px 24px!important;box-shadow:0 12px 40px rgba(20,30,80,.10);gap:20px!important}
-.lgh{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-bottom:4px}.lgl{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#eef2ff,#e2e8ff);display:flex;align-items:center;justify-content:center;flex:0 0 auto}.lgl svg{width:32px;height:38px}
-.lgh b{display:block;font-size:22px;font-weight:900;letter-spacing:-.5px;line-height:1.25}.lgh em{font-style:normal;background:linear-gradient(90deg,#00b8a9,#3b5bff 55%,#7c4dff);-webkit-background-clip:text;background-clip:text;color:transparent}.lgh span{font-size:13px;color:var(--sub)}
+.lph{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-bottom:4px}.lgl{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#eef2ff,#e2e8ff);display:flex;align-items:center;justify-content:center;flex:0 0 auto}.lgl svg{width:32px;height:38px}
+.lph b{display:block;font-size:22px;font-weight:900;letter-spacing:-.5px;line-height:1.25}.lph em{font-style:normal;background:linear-gradient(90deg,#00b8a9,#3b5bff 55%,#7c4dff);-webkit-background-clip:text;background-clip:text;color:transparent}.lph span{font-size:13px;color:var(--sub)}
 .lgf{display:grid;gap:14px}.lgf label{display:grid;gap:6px;font-size:13px;font-weight:700}.lgf label .hint{font-weight:400}
 .lgf input{padding:13px 14px;font-size:16px}.lgf input:focus{outline:none;border-color:#6d7cf7;box-shadow:0 0 0 3px rgba(91,108,247,.18)}
 .pw{position:relative;display:block}.pw input{width:100%;padding-right:78px}
@@ -201,6 +201,28 @@ body.nolog header+div{display:none}
 .lbtn{padding:15px!important;font-size:15px!important;border-radius:14px!important;margin-top:2px}.lbtn[disabled]{opacity:.65;cursor:wait}
 .lhelp{margin:0;text-align:center;font-size:12px;color:var(--sub);line-height:1.7}.lhelp a{color:inherit}
 @media(prefers-color-scheme:dark){.lerr{background:#3b1220;color:#fda4af}.lgl{background:#232a4a}}
+/* 로그인 화면: PC 전용 분할 디자인 (모바일은 위의 카드 그대로) */
+.lpb,.lpt,.lpfoot{display:none}
+@media (min-width:1024px){
+  body.nolog header,body.nolog header+div,body.nolog .sbf{display:none}
+  body.nolog .wrap{max-width:none!important;padding:0!important}
+  .lgw{min-height:100vh;padding:0;align-items:stretch;justify-content:flex-start;background:var(--panel)}
+  .lpb{display:flex;flex:1 1 56%;align-items:center;position:relative;overflow:hidden;color:#fff;padding:64px 72px;background:radial-gradient(90% 70% at 100% 0%,rgba(0,201,183,.30),transparent 60%),radial-gradient(80% 70% at 0% 100%,rgba(124,77,255,.40),transparent 60%),linear-gradient(160deg,#0a3190 0%,#2443c9 60%,#3b5bff 100%)}
+  .lpbi{max-width:520px;margin:0 auto}
+  .lpmark svg{width:80px;height:96px;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.18))}
+  .lpk{margin:28px 0 10px;font-size:16px;font-weight:600;opacity:.85}
+  .lpb h1{margin:0;font-size:58px;font-weight:900;line-height:1.12;letter-spacing:-1px;background:linear-gradient(135deg,#fff 0%,#9ff3e6 50%,#bcd2ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lps{margin:18px 0 0;font-size:13px;font-weight:700;letter-spacing:4px;opacity:.8}
+  .lpfeat{display:grid;gap:14px;list-style:none;padding:0;margin:44px 0 0}
+  .lpfeat li{display:flex;align-items:center;gap:14px;font-size:15px;font-weight:600;color:rgba(255,255,255,.92)}
+  .lpfeat i{font-style:normal;width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto}
+  .lgn{flex:0 0 min(540px,44%);max-width:none!important;margin:0!important;border-radius:0;box-shadow:none;display:flex!important;flex-direction:column;justify-content:center;padding:56px!important;gap:22px!important}
+  .lgn>*{width:100%;max-width:380px;margin-left:auto;margin-right:auto}
+  .lph{display:none}
+  .lpt{display:block}.lpt h2{margin:0;font-size:28px;font-weight:800;letter-spacing:-.4px}.lpt p{margin:6px 0 0;font-size:14px;color:var(--sub)}
+  .lhelp{text-align:left}
+  .lpfoot{display:block;margin:6px auto 0;text-align:left;font-size:11.5px;color:var(--sub);line-height:1.9}.lpfoot a{color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}.lpfoot span{margin:0 8px;opacity:.5}
+}
 .pco{display:none}.cnav{display:none}
 .rkg,.rkl,.rkr{display:grid;gap:12px;min-width:0;align-content:start}.rkh{margin:6px 0 0;font-size:16px}.rkbest .post{margin:0}
 .sbw{position:relative;container-type:inline-size}.sbi{text-decoration:none;width:100%}
@@ -591,8 +613,16 @@ function logout(){if(!confirm("로그아웃할까요?\n이 기기에 저장된 �
   NAME="";CODE="";try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("rcdraft")}catch(e){}
   D={reviews:[],likes:[],comments:[]};open={};openC={};view="login";render();scrollTo(0,0);setTimeout(()=>{const i=$("#ln");if(i)i.focus()},50)}
 function pwToggle(b){const i=$("#lc");i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"보기":"숨기기";b.setAttribute("aria-label",i.type==="password"?"접속 코드 보기":"접속 코드 숨기기");i.focus()}
-function login(){return `<div class="lgw"><div class="form lgn">
-  <div class="lgh"><span class="lgl">${LOGIN_LOGO}</span><div><b>서부 <em>리딩 메이트</em></b><span>함께 읽고, 나누고, 성장해요</span></div></div>
+const LOGIN_HERO='<svg viewBox="0 0 410 480" aria-hidden="true"><defs><linearGradient id="lhR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bcd0ff"/></linearGradient><linearGradient id="lhA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#c4b5fd"/></linearGradient><linearGradient id="lhB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6f0ff"/><stop offset="1" stop-color="#a9c6ff"/></linearGradient></defs><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lhR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lhA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lhB)"/></svg>';
+function login(){return `<div class="lgw"><aside class="lpb"><div class="lpbi">
+    <div class="lpmark">${LOGIN_HERO}</div>
+    <p class="lpk">함께 성장하는 독서 파트너</p>
+    <h1>서부<br>리딩 메이트</h1>
+    <p class="lps">READ. SHARE. RISE.</p>
+    <ul class="lpfeat"><li><i>✍️</i>독후감·카드뉴스로 나누는 인사이트</li><li><i>📚</i>분야별 필독서와 혁신 기업가 추천 도서</li><li><i>🏅</i>매월 우수 메이트 · 매년 최우수 메이트</li></ul>
+  </div></aside><div class="form lgn">
+  <div class="lph"><span class="lgl">${LOGIN_LOGO}</span><div><b>서부 <em>리딩 메이트</em></b><span>함께 읽고, 나누고, 성장해요</span></div></div>
+  <div class="lpt"><h2>로그인</h2><p>서부 구성원만 이용할 수 있어요</p></div>
   <form class="lgf" onsubmit="return enter(event)" novalidate>
     <label for="ln">이름<span class="hint">피드와 메이트 순위에 표시돼요</span><input id="ln" value="${esc(NAME)}" maxlength="30" placeholder="예: 홍길동" autocomplete="name" enterkeyhint="next"></label>
     <label for="lc">사내 접속 코드<span class="pw"><input id="lc" type="password" value="${esc(CODE)}" placeholder="관리자에게 받은 코드" autocomplete="current-password" enterkeyhint="go"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
@@ -600,6 +630,7 @@ function login(){return `<div class="lgw"><div class="form lgn">
     <button class="btn lbtn" id="lgo" type="submit">입장하기</button>
   </form>
   <p class="lhelp">접속 코드를 모르시면 관리자에게 문의해 주세요<br><a href="mailto:admin@sbfeed.co.kr">admin@sbfeed.co.kr</a></p>
+  <p class="lpfoot"><a onclick="flink('terms')">이용약관</a><span>·</span><a onclick="flink('privacy')">개인정보처리방침</a><br>© 2026 sbfeed.co.kr</p>
 </div></div>`}
 async function enter(ev){if(ev)ev.preventDefault();lerr("");const n=$("#ln").value.trim(),c=$("#lc").value.trim(),b=$("#lgo");
   if(!n){lerr("이름을 입력해 주세요.");$("#ln").focus();return false}
