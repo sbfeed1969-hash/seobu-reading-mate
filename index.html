@@ -195,6 +195,8 @@ body.nolog header+div{display:none}
 .lgf input{padding:13px 14px;font-size:16px}.lgf input:focus{outline:none;border-color:#6d7cf7;box-shadow:0 0 0 3px rgba(91,108,247,.18)}
 .pw{position:relative;display:block}.pw input{width:100%;padding-right:78px}
 .eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:var(--sub);padding:7px 10px;border-radius:9px}.eye:hover{background:var(--bg);color:var(--fg)}
+.lo{font-size:13px;font-weight:700;color:var(--sub);padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:var(--panel);white-space:nowrap}.lo:hover{color:var(--fg);border-color:#c7d2fe}
+.sfoot .sout{margin-top:4px;color:#f6a6a6}.sfoot .sout:hover{background:rgba(246,120,120,.12);color:#ffd0d0}
 .lerr{display:none;margin:0;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c;font-size:13px;font-weight:600}
 .lbtn{padding:15px!important;font-size:15px!important;border-radius:14px!important;margin-top:2px}.lbtn[disabled]{opacity:.65;cursor:wait}
 .lhelp{margin:0;text-align:center;font-size:12px;color:var(--sub);line-height:1.7}.lhelp a{color:inherit}
@@ -441,7 +443,7 @@ function tabbar(){
   const T=[["feed","피드",ICO.feed],["req","필독서",ICO.book],["write","쓰기",ICO.plus],["rank","메이트",ICO.medal],["intro","소개",ICO.info]];
   return '<div class="sbrand pco" onclick="go(\'intro\')" title="소개로 이동"><span class="lgx"><svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><b>서부<br><em>리딩 메이트</em></b></div>'+'<div class="tbi">'+T.map(([v,l,ic])=>v==="write"
     ?`<button class="tb tw${cur===v?" on":""}" onclick="go('write')" aria-label="독후감 쓰기"><span class="plus">${ic}</span><i>${l}</i></button>`
-    :`<button class="tb${cur===v?" on":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>'+'<div class="sfoot pco">'+(NAME?'<div class="sme">👤 <b>'+esc(NAME)+'</b>님</div>':"")+'<button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label></div>';
+    :`<button class="tb${cur===v?" on":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>'+'<div class="sfoot pco">'+(NAME?'<div class="sme">👤 <b>'+esc(NAME)+'</b>님</div>':"")+'<button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label><button class="sout" onclick="logout()">🚪 로그아웃</button></div>';
 }
 function seeU(u){fq=u;cat="전체";go("feed")}
 const BEST_PICK={}; // 최우수 메이트를 직접 선정하려면 예: {"2026":"이름"} (없으면 연간 활동량 1위)
@@ -579,12 +581,15 @@ async function load(force){
   if(view==="feed"||view==="rank"||view==="intro")render();
 }
 function render(){MC=mates(0);MC.best=prevBest();
-  $("#nav").innerHTML="";
+  $("#nav").innerHTML=(NAME&&view!=="login")?'<button class="lo" onclick="logout()" aria-label="로그아웃">로그아웃</button>':"";
   document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login");if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
 }
 function go(v){if(v==="rank"){rm=0;ry=new Date().getFullYear()}if(v==="intro"){im=0;iy=new Date().getFullYear()}if(v==="write"){B={cover:""};R=[]}view=v;render();if(v==="write"){restoreDraft();uiw()}scrollTo(0,0)}
 const LOGIN_LOGO='<svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg>';
 const lerr=m=>{const e=$("#lerr");if(e){e.textContent=m||"";e.style.display=m?"block":"none"}};
+function logout(){if(!confirm("로그아웃할까요?\n이 기기에 저장된 이름과 접속 코드가 지워져요."))return;
+  NAME="";CODE="";try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("rcdraft")}catch(e){}
+  D={reviews:[],likes:[],comments:[]};open={};openC={};view="login";render();scrollTo(0,0);setTimeout(()=>{const i=$("#ln");if(i)i.focus()},50)}
 function pwToggle(b){const i=$("#lc");i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"보기":"숨기기";b.setAttribute("aria-label",i.type==="password"?"접속 코드 보기":"접속 코드 숨기기");i.focus()}
 function login(){return `<div class="lgw"><div class="form lgn">
   <div class="lgh"><span class="lgl">${LOGIN_LOGO}</span><div><b>서부 <em>리딩 메이트</em></b><span>함께 읽고, 나누고, 성장해요</span></div></div>
