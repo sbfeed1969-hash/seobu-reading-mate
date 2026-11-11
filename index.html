@@ -185,6 +185,20 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 .inw .sitc{align-items:flex-start}.isl:not(.open) .ibl li:nth-child(n+7){display:none}.imore{display:block;width:100%;margin:4px 0 10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.08);color:#dfe6fb;font-weight:700;font-size:13.5px}.imore:hover{background:rgba(255,255,255,.14)}
 .ow{display:inline-block;font-size:10.5px;font-weight:800;color:#18223f;background:#9cc0ff;border-radius:6px;padding:0 5px;margin-left:5px;vertical-align:1px}
 .sbp2{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);font-size:15px;padding:0}.sbp2:hover{background:rgba(255,255,255,.2)}
+/* 로그인(접속 코드) 화면 */
+body.nolog header+div{display:none}
+.lgw{min-height:calc(100vh - 150px);display:flex;align-items:center;justify-content:center;padding:28px 16px}
+.lgn{width:100%;max-width:420px!important;margin:0 auto!important;background:var(--panel);border-radius:24px;padding:30px 24px 24px!important;box-shadow:0 12px 40px rgba(20,30,80,.10);gap:20px!important}
+.lgh{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-bottom:4px}.lgl{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#eef2ff,#e2e8ff);display:flex;align-items:center;justify-content:center;flex:0 0 auto}.lgl svg{width:32px;height:38px}
+.lgh b{display:block;font-size:22px;font-weight:900;letter-spacing:-.5px;line-height:1.25}.lgh em{font-style:normal;background:linear-gradient(90deg,#00b8a9,#3b5bff 55%,#7c4dff);-webkit-background-clip:text;background-clip:text;color:transparent}.lgh span{font-size:13px;color:var(--sub)}
+.lgf{display:grid;gap:14px}.lgf label{display:grid;gap:6px;font-size:13px;font-weight:700}.lgf label .hint{font-weight:400}
+.lgf input{padding:13px 14px;font-size:16px}.lgf input:focus{outline:none;border-color:#6d7cf7;box-shadow:0 0 0 3px rgba(91,108,247,.18)}
+.pw{position:relative;display:block}.pw input{width:100%;padding-right:78px}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:var(--sub);padding:7px 10px;border-radius:9px}.eye:hover{background:var(--bg);color:var(--fg)}
+.lerr{display:none;margin:0;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c;font-size:13px;font-weight:600}
+.lbtn{padding:15px!important;font-size:15px!important;border-radius:14px!important;margin-top:2px}.lbtn[disabled]{opacity:.65;cursor:wait}
+.lhelp{margin:0;text-align:center;font-size:12px;color:var(--sub);line-height:1.7}.lhelp a{color:inherit}
+@media(prefers-color-scheme:dark){.lerr{background:#3b1220;color:#fda4af}.lgl{background:#232a4a}}
 .pco{display:none}.cnav{display:none}
 .rkg,.rkl,.rkr{display:grid;gap:12px;min-width:0;align-content:start}.rkh{margin:6px 0 0;font-size:16px}.rkbest .post{margin:0}
 .sbw{position:relative;container-type:inline-size}.sbi{text-decoration:none;width:100%}
@@ -250,7 +264,7 @@ body:not(.nolog) header,body:not(.nolog) header+div{display:none}
 .wrap{padding-top:18px}
 /* 로그인: 가운데 카드 */
 body.nolog{padding-left:0}
-.lgn{max-width:440px!important;margin:9vh auto 0!important;background:var(--panel);border-radius:24px;padding:30px!important;box-shadow:0 12px 40px rgba(20,30,80,.10)}
+
 /* 카드 넘김 버튼 */
 .sith{align-items:center}.cnav{display:inline-flex;gap:6px;margin-left:auto}
 .cnav button{width:36px;height:36px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:20px;line-height:1;color:var(--fg);box-shadow:0 1px 4px rgba(20,30,80,.08)}.cnav button:hover{background:var(--mb);border-color:#c7d2fe}
@@ -569,11 +583,26 @@ function render(){MC=mates(0);MC.best=prevBest();
   document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login");if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
 }
 function go(v){if(v==="rank"){rm=0;ry=new Date().getFullYear()}if(v==="intro"){im=0;iy=new Date().getFullYear()}if(v==="write"){B={cover:""};R=[]}view=v;render();if(v==="write"){restoreDraft();uiw()}scrollTo(0,0)}
-function login(){return `<div class="form lgn"><h2 style="margin:0">처음 오셨나요?</h2><label>이름 (표시될 이름)<input id="ln" value="${esc(NAME)}" maxlength="30"></label><label>접속 코드<span class="hint">관리자에게 받은 사내 접속 코드를 입력하세요</span><input id="lc" value="${esc(CODE)}"></label><button class="btn" style="padding:12px" onclick="enter()">입장</button></div>`}
-async function enter(){const n=$("#ln").value.trim(),c=$("#lc").value.trim();if(!n){alert("이름을 입력해 주세요.");return}if(!c){alert("접속 코드를 입력해 주세요.");return}
-  let okc=false;try{okc=await window.rcCheck(c)}catch(e){alert("서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.");return}
-  if(!okc){alert("접속 코드가 맞지 않아요. 관리자에게 확인해 주세요.");return}
-  NAME=n;CODE=c;try{localStorage.setItem("n",NAME);localStorage.setItem("c",CODE)}catch(e){}view="intro";load(1)}
+const LOGIN_LOGO='<svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg>';
+const lerr=m=>{const e=$("#lerr");if(e){e.textContent=m||"";e.style.display=m?"block":"none"}};
+function pwToggle(b){const i=$("#lc");i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"보기":"숨기기";b.setAttribute("aria-label",i.type==="password"?"접속 코드 보기":"접속 코드 숨기기");i.focus()}
+function login(){return `<div class="lgw"><div class="form lgn">
+  <div class="lgh"><span class="lgl">${LOGIN_LOGO}</span><div><b>서부 <em>리딩 메이트</em></b><span>함께 읽고, 나누고, 성장해요</span></div></div>
+  <form class="lgf" onsubmit="return enter(event)" novalidate>
+    <label for="ln">이름<span class="hint">피드와 메이트 순위에 표시돼요</span><input id="ln" value="${esc(NAME)}" maxlength="30" placeholder="예: 홍길동" autocomplete="name" enterkeyhint="next"></label>
+    <label for="lc">사내 접속 코드<span class="pw"><input id="lc" type="password" value="${esc(CODE)}" placeholder="관리자에게 받은 코드" autocomplete="current-password" enterkeyhint="go"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
+    <p id="lerr" class="lerr" role="alert" aria-live="polite"></p>
+    <button class="btn lbtn" id="lgo" type="submit">입장하기</button>
+  </form>
+  <p class="lhelp">접속 코드를 모르시면 관리자에게 문의해 주세요<br><a href="mailto:admin@sbfeed.co.kr">admin@sbfeed.co.kr</a></p>
+</div></div>`}
+async function enter(ev){if(ev)ev.preventDefault();lerr("");const n=$("#ln").value.trim(),c=$("#lc").value.trim(),b=$("#lgo");
+  if(!n){lerr("이름을 입력해 주세요.");$("#ln").focus();return false}
+  if(!c){lerr("사내 접속 코드를 입력해 주세요.");$("#lc").focus();return false}
+  const reset=()=>{b.disabled=false;b.textContent="입장하기"};b.disabled=true;b.textContent="확인 중…";
+  let okc=false;try{okc=await window.rcCheck(c)}catch(e){reset();lerr("서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.");return false}
+  if(!okc){reset();lerr("접속 코드가 맞지 않아요. 다시 확인해 주세요.");$("#lc").select();return false}
+  NAME=n;CODE=c;try{localStorage.setItem("n",NAME);localStorage.setItem("c",CODE)}catch(e){}view="intro";load(1);return false}
 function post(r){
   const cs=r.cards||[],qo=r.quote?1:0,t=cs.length+1+qo,lk=D.likes.filter(l=>l.reviewId===r.id),mine=lk.some(l=>l.uid===NAME),cm=D.comments.filter(c=>c.reviewId===r.id);
   const bg=(r.cover||fcov(r.book))?` style="background-image:linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.88)),url('${esc(r.cover||fcov(r.book))}');background-size:cover;background-position:center"`:"";
