@@ -185,6 +185,7 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 .inw .sitc{align-items:flex-start}.isl:not(.open) .ibl li:nth-child(n+7){display:none}.imore{display:block;width:100%;margin:4px 0 10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.08);color:#dfe6fb;font-weight:700;font-size:13.5px}.imore:hover{background:rgba(255,255,255,.14)}
 .ow{display:inline-block;font-size:10.5px;font-weight:800;color:#18223f;background:#9cc0ff;border-radius:6px;padding:0 5px;margin-left:5px;vertical-align:1px}
 .sbp2{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);font-size:15px;padding:0}.sbp2:hover{background:rgba(255,255,255,.2)}
+.pco{display:none}.cnav{display:none}
 .rkg,.rkl,.rkr{display:grid;gap:12px;min-width:0;align-content:start}.rkh{margin:6px 0 0;font-size:16px}.rkbest .post{margin:0}
 .sbw{position:relative;container-type:inline-size}.sbi{text-decoration:none;width:100%}
 .sbp{position:absolute;left:calc(100% - 34px);top:calc(150cqw - 34px);width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);font-size:15px;display:flex;align-items:center;justify-content:center;padding:0}
@@ -237,20 +238,42 @@ header{padding:14px 4px}
 .wbar{bottom:0;margin:0 -16px -16px}
 .lgm{align-items:center}.lgb{max-width:760px;height:82vh;border-radius:24px}
 .chips{justify-content:flex-start}
+/* 사이드바: 로고 · 메뉴 · 사용자/백업 / 상단 로고 줄과 저장 안내 띠는 숨김 */
+body:not(.nolog) header,body:not(.nolog) header+div{display:none}
+.tabbar .pco{display:flex}
+.sbrand{align-items:center;gap:11px;padding:2px 8px 22px;cursor:pointer;color:#fff}
+.sbrand .lgx{width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.sbrand svg{width:24px;height:28px}
+.sbrand b{font-size:15px;font-weight:900;letter-spacing:-.3px;line-height:1.25}.sbrand em{font-style:normal;color:#8fb0ff}
+.sfoot{margin-top:auto;flex-direction:column;gap:2px;padding:14px 4px 2px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:#9aa6d8}
+.sfoot .sme{padding:4px 10px 8px;color:#c9d2ee}.sfoot .sme b{color:#fff}
+.sfoot button,.sfoot label{display:block;text-align:left;padding:9px 10px;border-radius:10px;color:#9aa6d8;cursor:pointer;font-size:13px}.sfoot button:hover,.sfoot label:hover{background:rgba(255,255,255,.07);color:#fff}
+.wrap{padding-top:18px}
+/* 로그인: 가운데 카드 */
+body.nolog{padding-left:0}
+.lgn{max-width:440px!important;margin:9vh auto 0!important;background:var(--panel);border-radius:24px;padding:30px!important;box-shadow:0 12px 40px rgba(20,30,80,.10)}
+/* 카드 넘김 버튼 */
+.sith{align-items:center}.cnav{display:inline-flex;gap:6px;margin-left:auto}
+.cnav button{width:36px;height:36px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:20px;line-height:1;color:var(--fg);box-shadow:0 1px 4px rgba(20,30,80,.08)}.cnav button:hover{background:var(--mb);border-color:#c7d2fe}
+/* 마우스 반응 */
+.sbi img,.ibc img,.rbc img{transition:transform .15s ease,box-shadow .15s ease}
+.sbi:hover img,.ibc:hover img,.rbc:hover img{transform:translateY(-3px);box-shadow:0 10px 20px rgba(20,30,80,.28)}
+.post{transition:box-shadow .2s ease}.post:hover{box-shadow:0 10px 30px rgba(20,30,80,.10)}
+.rq .rb:hover{background:var(--mb);border-radius:12px}.rb{padding-left:6px;padding-right:6px}
+.chip:hover,.ft-b:hover{border-color:#c7d2fe;background:var(--mb)}
 /* 이달의 책: 가로형 배너 (정보 | 버튼) */
 .ftd2{grid-template-columns:minmax(0,1fr) 240px;column-gap:28px;align-items:center;padding:18px 24px}
 .ftd2 .ft-tag{grid-column:1/-1}.ftd2 .ft-main{grid-column:1}.ftd2 .ft-main img{width:92px}
 .ftd2 .ft-info{grid-template-columns:repeat(2,max-content);column-gap:36px;row-gap:8px}.ftd2 .ft-info>div:first-child{grid-column:1/-1}
 .ftd2 .ft-act{grid-column:2;grid-row:2;grid-template-columns:1fr 1fr;align-self:center}
 /* 피드 필터: 칩 + 검색 한 줄, 스크롤해도 위에 고정 */
-.fbar{display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:4;background:var(--bg);padding:10px 16px;margin:6px 0 4px}
+.fbar{display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:4;background:var(--bg);padding:10px 16px;margin:6px 0 4px}
 .fbar .chips{flex:1;min-width:0;background:none;border:0;padding:0}.fbar .row{padding:0!important;flex:0 0 320px}
 /* 메이트: 2단 */
 .rkg{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
 /* 쓰기: 입력 | 진행도·올리기 패널(고정) */
 .wf{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start;max-width:1120px;margin:0 auto}
 .wf>*{grid-column:1}
-.wf>.wbar{grid-column:2;grid-row:1/span 4;position:sticky;top:78px;bottom:auto;flex-direction:column;align-items:stretch;gap:14px;margin:0;padding:22px;border:1px solid var(--line);border-radius:24px;z-index:1}
+.wf>.wbar{grid-column:2;grid-row:1/span 4;position:sticky;top:20px;bottom:auto;flex-direction:column;align-items:stretch;gap:14px;margin:0;padding:22px;border:1px solid var(--line);border-radius:24px;z-index:1}
 .wf>.wbar>div{flex:none!important}.wf>.wbar .btn{padding:14px;font-size:15px}
 .wf>.wbar::before{content:"✍️ 작성 순서\A① 책 고르기\A② 카드뉴스 만들기\A③ 나의 독후감 쓰기";white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--sub);border-bottom:1px solid var(--line);padding-bottom:12px}
 .wf .bk2 .bkf{grid-template-columns:1fr 1fr}.wf .bk2 .bkf label:first-child{grid-column:1/-1}
@@ -368,6 +391,7 @@ function flink(k){
   m.style.display="flex";document.body.style.overflow="hidden";
 }
 function closeLegal(){const m=document.getElementById("lgm");if(m)m.style.display="none";document.body.style.overflow=""}
+function cnav(b,d){const c=b.closest(".sitw").querySelector(".sitc");c.scrollBy({left:d*c.clientWidth*0.9,behavior:"smooth"})}
 function jumpTo(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})}
 let doneId="";
 const PLOGO='<svg viewBox="0 0 410 480" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0A3190"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="pA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#00c9b7"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="pB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fc1ff"/><stop offset="1" stop-color="#4a84f0"/></linearGradient></defs><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#pR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#pA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#pB)"/></svg>';
@@ -401,9 +425,9 @@ const ICO={
 function tabbar(){
   const cur=view==="done"?"feed":view;
   const T=[["feed","피드",ICO.feed],["req","필독서",ICO.book],["write","쓰기",ICO.plus],["rank","메이트",ICO.medal],["intro","소개",ICO.info]];
-  return '<div class="tbi">'+T.map(([v,l,ic])=>v==="write"
+  return '<div class="sbrand pco" onclick="go(\'intro\')" title="소개로 이동"><span class="lgx"><svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><b>서부<br><em>리딩 메이트</em></b></div>'+'<div class="tbi">'+T.map(([v,l,ic])=>v==="write"
     ?`<button class="tb tw${cur===v?" on":""}" onclick="go('write')" aria-label="독후감 쓰기"><span class="plus">${ic}</span><i>${l}</i></button>`
-    :`<button class="tb${cur===v?" on":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>';
+    :`<button class="tb${cur===v?" on":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>'+'<div class="sfoot pco">'+(NAME?'<div class="sme">👤 <b>'+esc(NAME)+'</b>님</div>':"")+'<button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label></div>';
 }
 function seeU(u){fq=u;cat="전체";go("feed")}
 const BEST_PICK={}; // 최우수 메이트를 직접 선정하려면 예: {"2026":"이름"} (없으면 연간 활동량 1위)
@@ -545,7 +569,7 @@ function render(){MC=mates(0);MC.best=prevBest();
   document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login");if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
 }
 function go(v){if(v==="rank"){rm=0;ry=new Date().getFullYear()}if(v==="intro"){im=0;iy=new Date().getFullYear()}if(v==="write"){B={cover:""};R=[]}view=v;render();if(v==="write"){restoreDraft();uiw()}scrollTo(0,0)}
-function login(){return `<div class="form"><h2 style="margin:0">처음 오셨나요?</h2><label>이름 (표시될 이름)<input id="ln" value="${esc(NAME)}" maxlength="30"></label><label>접속 코드<span class="hint">관리자에게 받은 사내 접속 코드를 입력하세요</span><input id="lc" value="${esc(CODE)}"></label><button class="btn" style="padding:12px" onclick="enter()">입장</button></div>`}
+function login(){return `<div class="form lgn"><h2 style="margin:0">처음 오셨나요?</h2><label>이름 (표시될 이름)<input id="ln" value="${esc(NAME)}" maxlength="30"></label><label>접속 코드<span class="hint">관리자에게 받은 사내 접속 코드를 입력하세요</span><input id="lc" value="${esc(CODE)}"></label><button class="btn" style="padding:12px" onclick="enter()">입장</button></div>`}
 async function enter(){const n=$("#ln").value.trim(),c=$("#lc").value.trim();if(!n){alert("이름을 입력해 주세요.");return}if(!c){alert("접속 코드를 입력해 주세요.");return}
   let okc=false;try{okc=await window.rcCheck(c)}catch(e){alert("서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.");return}
   if(!okc){alert("접속 코드가 맞지 않아요. 관리자에게 확인해 주세요.");return}
@@ -588,13 +612,13 @@ const bookUrl=t=>SITID[t]?"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId="+
 const SITC=[["#1f6f43","#fff"],["#f4efe6","#2b2b2b"],["#ffffff","#222"],["#2f3e52","#fff"],["#e8b4a0","#3a2a25"],["#1d1d1f","#f5d76e"],["#d9c7a3","#3b2f1f"],["#a33b2f","#fff"],["#2b4f81","#fff"]];
 function sitCards(){
   const m=myBooks();
-  return `<div class="sitw"><div class="sith"><b>📚 상황별 책 추천</b><span class="hint">옆으로 넘겨보세요 · 표지를 누르면 책 소개, ✍️를 누르면 독후감 쓰기</span></div><div class="sitc">${SIT.map(([q,bs],si)=>`<div class="sl"><span class="scnt">${si+1}/${SIT.length}</span><div class="sbub">${esc(q)}</div><div class="sg">${bs.map((t,bi)=>{const c=SITC[(si*3+bi)%SITC.length];return SITIMG[t]?`<div class="sbw"><a class="sb sbi" href="${esc(bookUrl(t))}" target="_blank" rel="noopener" aria-label="${esc(t)} 책 소개 보기">${m.has(nz(t))?"<em>✅</em>":""}<img src="${SITIMG[t]}" alt=""><span>${esc(t)}</span></a><button class="sbp" onclick="wrs(${si},${bi})" aria-label="${esc(t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></div>`:`<button class="sb" style="background:${c[0]};color:${c[1]}" onclick="wrs(${si},${bi})">${m.has(nz(t))?"<em>✅</em>":""}${esc(t)}</button>`}).join("")}</div></div>`).join("")}</div></div>`;
+  return `<div class="sitw"><div class="sith"><b>📚 상황별 책 추천</b><span class="hint">옆으로 넘겨보세요 · 표지를 누르면 책 소개, ✍️를 누르면 독후감 쓰기</span><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전 카드">‹</button><button onclick="cnav(this,1)" aria-label="다음 카드">›</button></span></div><div class="sitc">${SIT.map(([q,bs],si)=>`<div class="sl"><span class="scnt">${si+1}/${SIT.length}</span><div class="sbub">${esc(q)}</div><div class="sg">${bs.map((t,bi)=>{const c=SITC[(si*3+bi)%SITC.length];return SITIMG[t]?`<div class="sbw"><a class="sb sbi" href="${esc(bookUrl(t))}" target="_blank" rel="noopener" aria-label="${esc(t)} 책 소개 보기">${m.has(nz(t))?"<em>✅</em>":""}<img src="${SITIMG[t]}" alt=""><span>${esc(t)}</span></a><button class="sbp" onclick="wrs(${si},${bi})" aria-label="${esc(t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></div>`:`<button class="sb" style="background:${c[0]};color:${c[1]}" onclick="wrs(${si},${bi})">${m.has(nz(t))?"<em>✅</em>":""}${esc(t)}</button>`}).join("")}</div></div>`).join("")}</div></div>`;
 }
 function wrs(si,bi){const t=SIT[si][1][bi];try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=SITIMG[t]||"";$("#fb").value=t;if(META[t])$("#fa").value=META[t][0];uiw()}
 function wrf(){try{localStorage.removeItem("rcdraft")}catch(e){}go("write");$("#fb").value=FEAT.title;$("#fa").value=FEAT.author;$("#fc").value="자기계발";uiw()}
 function innoCards(){
   const m=myBooks();
-  return `<div class="sitw inw"><div class="sith"><b>🚀 혁신 기업가의 추천 도서</b><span class="hint">옆으로 넘겨보세요 · 제목이나 표지를 누르면 책 소개</span></div><div class="sitc">${INNO.map((p,pi)=>`<div class="isl"><div class="ish"><span class="iav">${esc(p.n.slice(0,1))}</span><div><b>${esc(p.n)}</b><small>${esc(p.r)} · ${p.b.length}권</small></div><span class="scnt">${pi+1}/${INNO.length}</span></div><ol class="ibl">${p.b.map(([id,d],k)=>{const b=BOOKS[id],u=esc(bookLink(id));return `<li><a class="ibc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(b.t)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><div class="ibt"><a href="${u}" target="_blank" rel="noopener"><span class="ibn2">${k+1}.</span>${esc(b.t)}${m.has(nz(b.t))?" ✅":""}</a><small>${esc(b.a)}${b.f?'<b class="ow">원서</b>':""}</small><p>${esc(d)}</p></div><button class="sbp2" onclick="wri('${id}')" aria-label="${esc(b.t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></li>`}).join("")}</ol>${p.b.length>6?`<button class="imore" onclick="const s=this.closest('.isl');s.classList.toggle('open');this.textContent=s.classList.contains('open')?'접기 ▲':'${p.b.length}권 모두 보기 ▼'">${p.b.length}권 모두 보기 ▼</button>`:""}</div>`).join("")}</div></div>`;
+  return `<div class="sitw inw"><div class="sith"><b>🚀 혁신 기업가의 추천 도서</b><span class="hint">옆으로 넘겨보세요 · 제목이나 표지를 누르면 책 소개</span><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전 카드">‹</button><button onclick="cnav(this,1)" aria-label="다음 카드">›</button></span></div><div class="sitc">${INNO.map((p,pi)=>`<div class="isl"><div class="ish"><span class="iav">${esc(p.n.slice(0,1))}</span><div><b>${esc(p.n)}</b><small>${esc(p.r)} · ${p.b.length}권</small></div><span class="scnt">${pi+1}/${INNO.length}</span></div><ol class="ibl">${p.b.map(([id,d],k)=>{const b=BOOKS[id],u=esc(bookLink(id));return `<li><a class="ibc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(b.t)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><div class="ibt"><a href="${u}" target="_blank" rel="noopener"><span class="ibn2">${k+1}.</span>${esc(b.t)}${m.has(nz(b.t))?" ✅":""}</a><small>${esc(b.a)}${b.f?'<b class="ow">원서</b>':""}</small><p>${esc(d)}</p></div><button class="sbp2" onclick="wri('${id}')" aria-label="${esc(b.t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></li>`}).join("")}</ol>${p.b.length>6?`<button class="imore" onclick="const s=this.closest('.isl');s.classList.toggle('open');this.textContent=s.classList.contains('open')?'접기 ▲':'${p.b.length}권 모두 보기 ▼'">${p.b.length}권 모두 보기 ▼</button>`:""}</div>`).join("")}</div></div>`;
 }
 function wri(id){const b=BOOKS[id];if(!b)return;try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=BIMG[id]||"";$("#fb").value=b.t;$("#fa").value=b.a||"";uiw()}let fq="",fs="new";
 function flist(){
