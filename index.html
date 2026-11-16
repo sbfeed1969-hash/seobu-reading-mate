@@ -165,6 +165,12 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 .sbw{width:100%;max-width:104px;margin:0 auto}
 .sl .sbi{font-size:14px!important;font-weight:800;line-height:1.38;letter-spacing:-.2px;gap:9px}
 .sl .sbi img{image-rendering:auto;border-radius:4px}
+.sth{display:flex;align-items:center;gap:12px;padding:2px 2px 14px;margin-bottom:16px;border-bottom:1px solid rgba(58,74,122,.14)}
+.stn{flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#2dbfb0,#4a6cf7 60%,#8b6cf6);color:#fff;font-weight:900;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(74,108,247,.28)}
+.stt{min-width:0}.stt small{display:block;margin-bottom:2px;font-size:11.5px;font-weight:700;color:#5b6aa0}
+.stt b{display:block;font-size:16.5px;font-weight:900;color:#1d2850;line-height:1.35;letter-spacing:-.3px;word-break:keep-all}
+@media(prefers-color-scheme:dark){.sth{border-bottom-color:rgba(255,255,255,.1)}.stt small{color:#9fb0d8}.stt b{color:#eef2fc}}
+@media (min-width:1024px){.stt b{font-size:17px}}
 .sbp{width:28px;height:28px;font-size:13px;left:calc(100% - 31px);top:calc(150cqw - 31px)}
 .sg{gap:20px 10px}
 @media (min-width:1024px){.sbw{max-width:100px}.sl .sbi{font-size:14.5px!important}.sg{gap:22px 12px}}
@@ -697,7 +703,7 @@ const bookUrl=t=>SITID[t]?"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId="+
 const SITC=[["#1f6f43","#fff"],["#f4efe6","#2b2b2b"],["#ffffff","#222"],["#2f3e52","#fff"],["#e8b4a0","#3a2a25"],["#1d1d1f","#f5d76e"],["#d9c7a3","#3b2f1f"],["#a33b2f","#fff"],["#2b4f81","#fff"]];
 function sitCards(){
   const m=myBooks();
-  return `<div class="sitw"><div class="sith"><b>📚 상황별 책 추천</b><span class="hint">옆으로 넘겨보세요 · 표지를 누르면 책 소개, ✍️를 누르면 독후감 쓰기</span><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전 카드">‹</button><button onclick="cnav(this,1)" aria-label="다음 카드">›</button></span></div><div class="sitc">${SIT.map(([q,bs],si)=>`<div class="sl"><span class="scnt">${si+1}/${SIT.length}</span><div class="sbub">${esc(q)}</div><div class="sg">${bs.map((t,bi)=>{const c=SITC[(si*3+bi)%SITC.length];return SITIMG[t]?`<div class="sbw"><a class="sb sbi" href="${esc(bookUrl(t))}" target="_blank" rel="noopener" aria-label="${esc(t)} 책 소개 보기">${m.has(nz(t))?"<em>✅</em>":""}<img src="${SITIMG[t]}" alt=""><span>${esc(t)}</span></a><button class="sbp" onclick="wrs(${si},${bi})" aria-label="${esc(t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></div>`:`<button class="sb" style="background:${c[0]};color:${c[1]}" onclick="wrs(${si},${bi})">${m.has(nz(t))?"<em>✅</em>":""}${esc(t)}</button>`}).join("")}</div></div>`).join("")}</div></div>`;
+  return `<div class="sitw"><div class="sith"><b>📚 상황별 책 추천</b><span class="hint">옆으로 넘겨보세요 · 표지를 누르면 책 소개, ✍️를 누르면 독후감 쓰기</span><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전 카드">‹</button><button onclick="cnav(this,1)" aria-label="다음 카드">›</button></span></div><div class="sitc">${SIT.map(([q,bs],si)=>`<div class="sl"><div class="sth"><span class="stn">${String(si+1).padStart(2,"0")}</span><div class="stt"><small>상황 ${si+1} / ${SIT.length} · 이럴 때 읽어보세요</small><b>${esc(q)}</b></div></div><div class="sg">${bs.map((t,bi)=>{const c=SITC[(si*3+bi)%SITC.length];return SITIMG[t]?`<div class="sbw"><a class="sb sbi" href="${esc(bookUrl(t))}" target="_blank" rel="noopener" aria-label="${esc(t)} 책 소개 보기">${m.has(nz(t))?"<em>✅</em>":""}<img src="${SITIMG[t]}" alt=""><span>${esc(t)}</span></a><button class="sbp" onclick="wrs(${si},${bi})" aria-label="${esc(t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></div>`:`<button class="sb" style="background:${c[0]};color:${c[1]}" onclick="wrs(${si},${bi})">${m.has(nz(t))?"<em>✅</em>":""}${esc(t)}</button>`}).join("")}</div></div>`).join("")}</div></div>`;
 }
 function wrs(si,bi){const t=SIT[si][1][bi];try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=SITIMG[t]||"";$("#fb").value=t;if(META[t])$("#fa").value=META[t][0];uiw()}
 function wrf(){try{localStorage.removeItem("rcdraft")}catch(e){}go("write");$("#fb").value=FEAT.title;$("#fa").value=FEAT.author;$("#fc").value="자기계발";uiw()}
