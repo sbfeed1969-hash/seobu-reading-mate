@@ -396,7 +396,7 @@ window.fetch=async(url,o={})=>{const p=new URL(url,location.href).pathname;if(!p
   const b=o.body?JSON.parse(o.body):{},h=o.headers||{},me=decodeURIComponent(h["X-Name"]||""),code=decodeURIComponent(h["X-Code"]||"");
   try{
     if(p==="/api/data")return ok(await rpc("rc_data",{p_code:code}));
-    if(p==="/api/books")return ok({books:[],keys:{kakao:false,aladin:false}});
+    if(p==="/api/books"){const r=await _fetch(url,{headers:{"X-Code":encodeURIComponent(code)}});if(r.status===401)return new Response(JSON.stringify({error:"접속 코드가 맞지 않아요."}),{status:401});return r}
     if(p==="/api/saseo")return ok({books:[],keys:{saseo:false}});
     if(p==="/api/meta")return ok({});
     if(p==="/api/like")await rpc("rc_like",{p_code:code,p_review_id:b.id,p_uid:me});
@@ -820,7 +820,7 @@ function addTag(t){const e=$("#ft");if(!e.value.includes(t))e.value=(e.value.tri
 async function sb(best){
   const q=$("#q").value.trim(),el=$("#res");if(!best&&!q)return;el.innerHTML='<span class="hint">찾는 중…</span>';
   try{const j=await api("/api/books?"+(best?"best=1":"q="+encodeURIComponent(q)));R=j.books;
-    el.innerHTML=R.length?R.map((b,i)=>`<button class="bk" onclick="pick(${i})"><img src="${esc(b.cover)}" alt=""><span><b>${esc(b.title)}</b><br><small>${esc(b.author)} · ${esc(b.publisher)} · ${esc(b.src)}</small></span></button>`).join(""):`<span class="hint">${j.keys.kakao||j.keys.aladin?"결과가 없어요.":"책 검색은 서버 버전에서만 쓸 수 있어요. 제목과 저자를 직접 입력해 주세요."}</span>`;
+    el.innerHTML=R.length?R.map((b,i)=>`<button class="bk" onclick="pick(${i})"><img src="${esc(b.cover)}" alt=""><span><b>${esc(b.title)}</b><br><small>${esc(b.author)} · ${esc(b.publisher)} · ${esc(b.src)}</small></span></button>`).join(""):`<span class="hint">${j.keys.kakao||j.keys.aladin?"결과가 없어요.":"책 검색이 아직 연결되지 않았어요. 제목과 저자를 직접 입력해 주세요."}</span>`;
   }catch(e){if(e)el.innerHTML='<span class="hint">검색하지 못했어요.</span>'}
 }
 async function ss(){
