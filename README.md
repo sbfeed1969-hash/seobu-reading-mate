@@ -23,12 +23,24 @@
 - `index.html`에 들어 있는 Supabase 키는 공개용(publishable) 키로, 노출되어도 테이블에 직접 접근할 수 없습니다.
 - 접속 코드는 저장소가 아니라 Supabase의 `rc_config` 테이블에만 저장됩니다.
 
-### 접속 코드 바꾸기
+### 접속 코드 관리
+
+접속 코드는 여러 개 둘 수 있습니다. `rc_config`에서 key가 `access_code`로 시작하는 행이 모두 유효합니다(대소문자 구분).
 
 Supabase 대시보드 → SQL Editor에서 실행:
 
 ```sql
+-- 현재 코드 목록
+select key from public.rc_config where key like 'access\_code%';
+
+-- 코드 추가 (key 이름은 access_code_ 뒤에 구분용 이름)
+insert into public.rc_config (key, value) values ('access_code_팀이름', '새-접속-코드');
+
+-- 코드 바꾸기
 update public.rc_config set value = '새-접속-코드' where key = 'access_code';
+
+-- 코드 없애기
+delete from public.rc_config where key = 'access_code_팀이름';
 ```
 
-바꾸면 기존 코드로 접속 중인 사람은 다음 새로고침 때 로그인 화면으로 돌아갑니다.
+바꾸거나 없앤 코드로 접속 중인 사람은 다음 새로고침 때 로그인 화면으로 돌아갑니다.
