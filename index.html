@@ -820,7 +820,7 @@ function addTag(t){const e=$("#ft");if(!e.value.includes(t))e.value=(e.value.tri
 async function sb(best){
   const q=$("#q").value.trim(),el=$("#res");if(!best&&!q)return;el.innerHTML='<span class="hint">찾는 중…</span>';
   try{const j=await api("/api/books?"+(best?"best=1":"q="+encodeURIComponent(q)));R=j.books;
-    el.innerHTML=R.length?R.map((b,i)=>`<button class="bk" onclick="pick(${i})"><img src="${esc(b.cover)}" alt=""><span><b>${esc(b.title)}</b><br><small>${esc(b.author)} · ${esc(b.publisher)} · ${esc(b.src)}</small></span></button>`).join(""):`<span class="hint">${j.keys.kakao||j.keys.aladin?"결과가 없어요.":"책 검색이 아직 연결되지 않았어요. 제목과 저자를 직접 입력해 주세요."}</span>`;
+    el.innerHTML=R.length?R.map((b,i)=>`<button class="bk" onclick="pick(${i})"><img src="${esc(b.cover)}" alt=""><span><b>${esc(b.title)}</b><br><small>${esc(b.author)} · ${esc(b.publisher)} · ${esc(b.src)}</small></span></button>`).join(""):best?`<span class="hint">서점 베스트셀러 목록은 지금 제공되지 않아요. <a href="#" onclick="go('req');return false">📚 필독서에서 고르기</a>나 제목 검색을 이용해 주세요.</span>`:`<span class="hint">${j.keys.kakao||j.keys.aladin?"결과가 없어요.":"책 검색이 아직 연결되지 않았어요. 제목과 저자를 직접 입력해 주세요."}</span>`;
   }catch(e){if(e)el.innerHTML='<span class="hint">검색하지 못했어요.</span>'}
 }
 async function ss(){
