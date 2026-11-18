@@ -27,9 +27,12 @@ const mapKakao = (d) => ({
   src: "카카오",
 });
 const aladinJson = async (url) => {
-  const r = await fetch(url);
+  const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (seobu-reading-mate)" } });
   const t = (await r.text()).trim().replace(/;\s*$/, "");
-  return JSON.parse(t);
+  let j;
+  try { j = JSON.parse(t); } catch (e) { throw new Error("aladin_bad_response: " + t.slice(0, 120)); }
+  if (j && j.errorCode) throw new Error("aladin_error " + j.errorCode + ": " + (j.errorMessage || ""));
+  return j;
 };
 
 async function codeOk(code) {
@@ -71,6 +74,6 @@ module.exports = async (req, res) => {
     res.setHeader("Cache-Control", "private, max-age=300");
     return res.status(200).json({ books, keys });
   } catch (e) {
-    return res.status(200).json({ books: [], keys, error: "search_failed" });
+    return res.status(200).json({ books: [], keys, error: "search_failed", detail: String((e && e.message) || e).replace(/ttbkey=[^&\s]+/gi, "ttbkey=***").slice(0, 200) });
   }
 };
