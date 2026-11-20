@@ -18,6 +18,21 @@ const mapKakao = (d) => ({
   src: "카카오",
 });
 
+async function memberOk(auth) {
+  if (!/^Bearer\s+\S+/.test(auth || "")) return false;
+  try {
+    const r = await fetch(SB_URL + "/rest/v1/rpc/rc_me", {
+      method: "POST",
+      headers: { apikey: SB_KEY, Authorization: auth, "Content-Type": "application/json" },
+      body: "{}",
+    });
+    const j = r.ok ? await r.json() : null;
+    return !!(j && j.name && !j.blocked);
+  } catch (e) {
+    return false;
+  }
+}
+
 async function codeOk(code) {
   if (!code) return false;
   try {
@@ -36,7 +51,7 @@ module.exports = async (req, res) => {
   const KAKAO = (process.env.KAKAO_REST_KEY || "").trim();
   const keys = { aladin: false, kakao: !!KAKAO };
   const code = decodeURIComponent(String(req.headers["x-code"] || ""));
-  if (!(await codeOk(code))) return res.status(401).json({ error: "접속 코드가 맞지 않아요." });
+  if (!(await memberOk(req.headers.authorization)) && !(await codeOk(code))) return res.status(401).json({ error: "접속 코드가 맞지 않아요." });
 
   const q = String((req.query && req.query.q) || "").trim().slice(0, 80);
   let books = [];

@@ -226,6 +226,21 @@ body.nolog header+div{display:none}
 .lerr{display:none;margin:0;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c;font-size:13px;font-weight:600}
 .lbtn{padding:15px!important;font-size:15px!important;border-radius:14px!important;margin-top:2px}.lbtn[disabled]{opacity:.65;cursor:wait}
 .lhelp{margin:0;text-align:center;font-size:12px;color:var(--sub);line-height:1.7}.lhelp a{color:inherit}
+/* 카카오 로그인 · 둘러보기 · 잠금 */
+.kbtn,.kbtn2{display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px!important;border-radius:14px!important;background:#FEE500!important;color:#191600!important;font-size:15px!important;font-weight:800!important;border:0!important}
+.kbtn svg,.kbtn2 svg{width:20px;height:20px}.kbtn:hover,.kbtn2:hover{filter:brightness(.97)}
+.kbtn2{width:auto;padding:13px 22px!important;margin:4px auto 0}
+.khint{margin:-10px 0 0;text-align:center;font-size:12px;color:var(--sub)}
+.lcode{border:1px solid var(--line);border-radius:14px;padding:0 14px}.lcode summary{cursor:pointer;padding:13px 0;font-size:13.5px;font-weight:700;color:var(--sub);list-style:none;display:flex;justify-content:space-between}.lcode summary::after{content:"›";transform:rotate(90deg);transition:.2s}.lcode[open] summary::after{transform:rotate(-90deg)}.lcode summary::-webkit-details-marker{display:none}.lcode[open]{padding-bottom:14px}.lcode .lgf{margin-bottom:12px}
+.lgst{display:grid;gap:6px;text-align:center;padding-top:14px;border-top:1px dashed var(--line)}.lgst p{margin:0;font-size:12px;color:var(--sub)}
+.gbtn{width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;font-weight:700;color:var(--fg);cursor:pointer}.gbtn:hover{border-color:#c7d2fe;background:var(--bg)}.gbtn span{color:var(--sub)}.gbtn.sm2{border:0;font-size:13px;color:var(--sub);padding:6px}
+.jme{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fffbd6;color:#3d3500;font-size:13.5px}.jme svg{width:20px;height:20px;flex:0 0 auto}
+.lockb{text-align:center;padding:30px 20px;margin:18px 16px;border-radius:22px;background:linear-gradient(180deg,var(--panel),var(--bg));border:1px dashed #c7d2fe;display:grid;gap:8px;justify-items:center}
+.lockb .lki{width:56px;height:56px;border-radius:18px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:26px}.lockb b{font-size:17px}.lockb p{margin:0 0 6px;font-size:13.5px;color:var(--sub);line-height:1.6;max-width:360px}
+.lockw{max-width:560px;margin:0 auto}.lockw .lockb{margin:10px 0}.lkgo{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tb.tlk i::after{content:" 🔒";font-size:.8em}body.guest header+div{display:none}
+.lo.lin{color:#1f3fae;border-color:#c7d2fe;background:#eef2ff}.sfoot .sin{margin-top:4px;color:#ffe680}
+@media(prefers-color-scheme:dark){.jme{background:#3a3410;color:#fff3a0}.lockb .lki{background:#232a4a}}
 @media(prefers-color-scheme:dark){.lerr{background:#3b1220;color:#fda4af}.lgl{background:#232a4a}}
 /* 로그인 화면: PC 전용 분할 디자인 (모바일은 위의 카드 그대로) */
 .lpb,.lpt,.lpfoot{display:none}
@@ -377,9 +392,33 @@ const ok=j=>new Response(JSON.stringify(j),{status:200});
 // 공개 키(publishable key)는 브라우저에 노출돼도 되는 키예요. 테이블은 직접 접근이 막혀 있어요.
 const SB_URL="https://hgmbzxevnlyxnmzvqmep.supabase.co",SB_KEY="sb_publishable_U38MxlFTGyb63yknh1otEA_jKJw7oAr";
 const _fetch=window.fetch.bind(window);
-const rpc=async(fn,args)=>{const r=await _fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{"apikey":SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args)});
+// ----- 카카오 로그인(Supabase Auth) 세션 -----
+let SESS=(()=>{try{return JSON.parse(localStorage.getItem("sbs")||"null")}catch(e){return null}})();
+const saveS=s=>{SESS=s;try{s?localStorage.setItem("sbs",JSON.stringify(s)):localStorage.removeItem("sbs")}catch(e){}};
+const nowS=()=>Math.floor(Date.now()/1000);
+async function tok(){if(!SESS)return null;if(nowS()<SESS.exp-60)return SESS.at;
+  try{const r=await _fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:SESS.rt})});
+    const j=await r.json().catch(()=>({}));if(!r.ok||!j.access_token){saveS(null);return null}
+    saveS({at:j.access_token,rt:j.refresh_token,exp:j.expires_at||nowS()+(j.expires_in||3600)});return SESS.at}catch(e){return SESS.at}}
+const jwtNick=t=>{try{const p=JSON.parse(decodeURIComponent(escape(atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));const m=p.user_metadata||{};return m.name||m.full_name||m.nickname||m.preferred_username||m.user_name||""}catch(e){return""}};
+window.RC_AUTH={legacy:true, // 전환 기간: 접속 코드 로그인도 허용(닫으려면 false + DB rc_config legacy_code_login=off)
+  kakao(){location.href=SB_URL+"/auth/v1/authorize?provider=kakao&redirect_to="+encodeURIComponent(location.origin+"/")},
+  async init(){const h=new URLSearchParams(location.hash.slice(1)),q=new URLSearchParams(location.search);
+    if(h.get("access_token")){saveS({at:h.get("access_token"),rt:h.get("refresh_token"),exp:+h.get("expires_at")||nowS()+(+h.get("expires_in")||3600)});history.replaceState(null,"",location.pathname)}
+    else if(h.get("error")||q.get("error")){const m=h.get("error_description")||q.get("error_description")||"";history.replaceState(null,"",location.pathname);setTimeout(()=>alert("카카오 로그인에 실패했어요. 다시 시도해 주세요.\n"+m),300)}
+    if(!SESS)return;
+    let me;try{me=await rpc("rc_me",{})}catch(e){if(e.status===401||e.status===403)saveS(null);return}
+    if(!me){saveS(null);return}
+    if(me.blocked){saveS(null);setTimeout(()=>alert("이용이 제한된 계정이에요. 관리자에게 문의해 주세요."),300);return}
+    GUEST=false;try{localStorage.removeItem("g")}catch(e){}
+    if(me.name){NAME=me.name;CODE="";KAKAO=true;JOIN=null;try{localStorage.setItem("n",NAME);localStorage.removeItem("c")}catch(e){}if(view==="login"||view==="join")view="intro"}
+    else{NAME="";JOIN={nick:jwtNick(SESS.at)};view="join"}},
+  async join(c,n,d){const me=await rpc("rc_join",{p_code:c,p_name:n,p_dept:d});NAME=me.name;CODE="";KAKAO=true;JOIN=null;GUEST=false;try{localStorage.setItem("n",NAME);localStorage.removeItem("c");localStorage.removeItem("g")}catch(e){}return me},
+  signOut(){const t=SESS&&SESS.at;saveS(null);if(t)_fetch(SB_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+t}}).catch(()=>{})}};
+const rpc=async(fn,args)=>{const t=await tok(),hd={"apikey":SB_KEY,"Content-Type":"application/json"};if(t)hd.Authorization="Bearer "+t;
+  const r=await _fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:hd,body:JSON.stringify(args)});
   const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(e){}
-  if(!r.ok){const er=new Error((j&&j.message)||"server_error");er.code=j&&j.message;throw er}return j};
+  if(!r.ok){const er=new Error((j&&j.message)||"server_error");er.code=j&&j.message;er.status=r.status;throw er}return j};
 window.rcCheck=c=>rpc("rc_check",{p_code:c});
 const nid=p=>p+Date.now()+Math.random().toString(36).slice(2,6);
 window.rcExport=()=>{const d={reviews:D.reviews,likes:D.likes,comments:D.comments};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:"application/json"}));a.download="독서플랫폼-백업-"+new Date().toISOString().slice(0,10)+".json";a.click()};
@@ -396,7 +435,7 @@ window.fetch=async(url,o={})=>{const p=new URL(url,location.href).pathname;if(!p
   const b=o.body?JSON.parse(o.body):{},h=o.headers||{},me=decodeURIComponent(h["X-Name"]||""),code=decodeURIComponent(h["X-Code"]||"");
   try{
     if(p==="/api/data")return ok(await rpc("rc_data",{p_code:code}));
-    if(p==="/api/books"){const r=await _fetch(url,{headers:{"X-Code":encodeURIComponent(code)}});if(r.status===401)return new Response(JSON.stringify({error:"접속 코드가 맞지 않아요."}),{status:401});return r}
+    if(p==="/api/books"){const t=await tok(),bh={"X-Code":encodeURIComponent(code)};if(t)bh.Authorization="Bearer "+t;const r=await _fetch(url,{headers:bh});if(r.status===401)return new Response(JSON.stringify({error:"접속 코드가 맞지 않아요."}),{status:401});return r}
     if(p==="/api/saseo")return ok({books:[],keys:{saseo:false}});
     if(p==="/api/meta")return ok({});
     if(p==="/api/like")await rpc("rc_like",{p_code:code,p_review_id:b.id,p_uid:me});
@@ -500,11 +539,11 @@ const ICO={
  info:'<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.1 1 1.9V16h5v-.2c0-.8.4-1.4 1-1.9A6 6 0 0 0 12 3z"/></svg>',
  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" style="stroke-width:2.8"/></svg>'};
 function tabbar(){
-  const cur=view==="done"?"feed":view;
+  const cur=view==="done"?"feed":view==="lock"?LOCK:view;
   const T=[["feed","피드",ICO.feed],["req","필독서",ICO.book],["write","쓰기",ICO.plus],["rank","메이트",ICO.medal],["intro","소개",ICO.info]];
   return '<div class="sbrand pco" onclick="go(\'intro\')" title="소개로 이동"><span class="lgx"><svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><b>서부<br><em>리딩 메이트</em></b></div>'+'<div class="tbi">'+T.map(([v,l,ic])=>v==="write"
-    ?`<button class="tb tw${cur===v?" on":""}" onclick="go('write')" aria-label="독후감 쓰기"><span class="plus">${ic}</span><i>${l}</i></button>`
-    :`<button class="tb${cur===v?" on":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>'+'<div class="sfoot pco">'+(NAME?'<div class="sme">👤 <b>'+esc(NAME)+'</b>님</div>':"")+'<button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label>'+(canInstall()?'<button onclick="installApp()">📲 앱 설치</button>':'')+'<button class="sout" onclick="logout()">🚪 로그아웃</button></div>';
+    ?`<button class="tb tw${cur===v?" on":""}${isGuest()?" tlk":""}" onclick="go('write')" aria-label="독후감 쓰기"><span class="plus">${ic}</span><i>${l}</i></button>`
+    :`<button class="tb${cur===v?" on":""}${isGuest()&&v==="rank"?" tlk":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>'+'<div class="sfoot pco">'+(NAME?'<div class="sme">👤 <b>'+esc(NAME)+'</b>님</div><button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label>':'<div class="sme">👀 둘러보는 중</div>')+(canInstall()?'<button onclick="installApp()">📲 앱 설치</button>':'')+(NAME?'<button class="sout" onclick="logout()">🚪 로그아웃</button>':'<button class="sin" onclick="toLogin()">🔑 로그인</button>')+'</div>';
 }
 function seeU(u){fq=u;cat="전체";go("feed")}
 const BEST_PICK={}; // 최우수 메이트를 직접 선정하려면 예: {"2026":"이름"} (없으면 연간 활동량 1위)
@@ -608,7 +647,7 @@ function intro(){
     <div class="sup"><div class="k">지원1</div><h3>이름 옆 배지</h3><p>선정되면 피드 이름 옆에 배지가 붙어요</p><div class="demo"><b>${esc(NAME||"나")}</b> <span class="bdg">${MEDAL}</span><span class="bdg">🏆</span><div class="hint" style="margin-top:6px">우수·최우수 메이트 · 1시간 전</div></div></div>
   <div class="sup"><div class="k">지원2</div><h3>연말 시상</h3><p>최우수 메이트를 연말에 시상해요</p><div class="demo" style="font-size:52px">🏆</div></div>
   <div class="sup"><div class="k">지원3</div><h3>베스트 독후감</h3><p>공감 1위 독후감을 매월 소개해요</p><div class="demo" style="font-size:52px">⭐</div></div>
-  <div class="sec" id="mm"><div class="gt">이달의 우수 메이트</div><div class="mnav" style="margin:6px 0 10px"><button class="rnd" onclick="im--;render()" aria-label="이전 달">‹</button><b style="font-size:18px">${M.y}년 ${M.m+1}월</b><button class="rnd" onclick="im++;render()" ${im>=0?"disabled":""} aria-label="다음 달">›</button></div><p class="sm">${M.m+1}월 활동 기준 · ${MATE_N}명 선정</p>${mcards(M)}</div><div class="sec" id="yy"><div class="gt">올해의 최우수 메이트</div><div class="mnav" style="margin:6px 0 10px"><button class="rnd" onclick="iy--;render()" aria-label="이전 해">‹</button><b style="font-size:18px">${Y.y}년</b><button class="rnd" onclick="iy++;render()" ${iy>=new Date().getFullYear()?"disabled":""} aria-label="다음 해">›</button></div><p class="sm">${Y.done?Y.y+"년 최우수 메이트":"매년 1명 · 연말 시상"}</p>${bestCard(Y)}<button class="ibn" style="margin:16px 0 0;width:100%" onclick="go('rank')">🏆 우수·최우수 메이트 보기 ›</button><button class="ibn" style="margin:10px 0 0;width:100%" onclick="go('write')">✍️ 독후감 쓰기 ›</button></div>
+  ${isGuest()?'<div class="sec" id="mm"><span id="yy"></span>'+lockBox("rank")+'</div>':`<div class="sec" id="mm"><div class="gt">이달의 우수 메이트</div><div class="mnav" style="margin:6px 0 10px"><button class="rnd" onclick="im--;render()" aria-label="이전 달">‹</button><b style="font-size:18px">${M.y}년 ${M.m+1}월</b><button class="rnd" onclick="im++;render()" ${im>=0?"disabled":""} aria-label="다음 달">›</button></div><p class="sm">${M.m+1}월 활동 기준 · ${MATE_N}명 선정</p>${mcards(M)}</div><div class="sec" id="yy"><div class="gt">올해의 최우수 메이트</div><div class="mnav" style="margin:6px 0 10px"><button class="rnd" onclick="iy--;render()" aria-label="이전 해">‹</button><b style="font-size:18px">${Y.y}년</b><button class="rnd" onclick="iy++;render()" ${iy>=new Date().getFullYear()?"disabled":""} aria-label="다음 해">›</button></div><p class="sm">${Y.done?Y.y+"년 최우수 메이트":"매년 1명 · 연말 시상"}</p>${bestCard(Y)}<button class="ibn" style="margin:16px 0 0;width:100%" onclick="go('rank')">🏆 우수·최우수 메이트 보기 ›</button><button class="ibn" style="margin:10px 0 0;width:100%" onclick="go('write')">✍️ 독후감 쓰기 ›</button></div>`}
   </div>`;
 }
 function mates(off){
@@ -630,22 +669,28 @@ const mateBlock=M=>`<h3 style="margin:14px 0 0">${MEDAL} ${M.m+1}월 우수 메�
 const STORES=[["네이버 도서",q=>"https://search.shopping.naver.com/book/search?query="+q],["교보문고",q=>"https://search.kyobobook.co.kr/search?keyword="+q],["영풍문고",q=>"https://www.ypbooks.co.kr/search?keyword="+q]];
 const lsGet=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}};
 let NAME=lsGet("n"),CODE=lsGet("c"),D={reviews:[],likes:[],comments:[]},view="intro",cat="전체",rm=0,open={},openC={},R=[],B={cover:""};
+// 둘러보기(로그인 없음): 피드 추천·필독서·소개만 보이고 직원 독후감·쓰기·메이트는 잠김
+let GUEST=(()=>{try{return localStorage.getItem("g")==="1"}catch(e){return false}})(),KAKAO=false,JOIN=null;
+const isGuest=()=>GUEST&&!NAME;
 async function api(p,b){
   const r=await fetch(p,{method:b?"POST":"GET",headers:{"X-Name":encodeURIComponent(NAME),"X-Code":encodeURIComponent(CODE),"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});
   if(r.status===401){view="login";render();throw 0}
   const j=await r.json();if(!r.ok)throw new Error(j.error||"오류");return j;
 }
 async function load(force){
-  if(!NAME){view="login";return render()}
+  if(isGuest()){if(view==="login"||view==="join")view="feed";if(force)render();return}
+  if(!NAME){if(force||(view!=="login"&&view!=="join")){view=JOIN?"join":"login";render()}return}
   try{D=await api("/api/data")}catch(e){return}
   const a=document.activeElement;if(!force&&a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;
   if(view==="feed"||view==="rank"||view==="intro")render();
 }
 function render(){MC=mates(0);MC.best=prevBest();
-  $("#nav").innerHTML=(canInstall()?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+((NAME&&view!=="login")?'<button class="lo" onclick="logout()" aria-label="로그아웃">로그아웃</button>':"");
-  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login");if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
+  $("#nav").innerHTML=(canInstall()&&view!=="login"&&view!=="join"?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+navHtml();
+  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
 }
-function go(v){if(v==="rank"){rm=0;ry=new Date().getFullYear()}if(v==="intro"){im=0;iy=new Date().getFullYear()}if(v==="write"){B={cover:""};R=[]}view=v;render();if(v==="write"){restoreDraft();uiw()}scrollTo(0,0)}
+function navHtml(){const L=view==="login"||view==="join";return NAME&&!L?'<button class="lo" onclick="logout()" aria-label="로그아웃">로그아웃</button>':isGuest()&&!L?'<button class="lo lin" onclick="toLogin()">🔑 로그인</button>':""}
+let LOCK="write";
+function go(v){if(isGuest()&&(v==="write"||v==="rank")){LOCK=v;view="lock";render();scrollTo(0,0);return}if(v==="rank"){rm=0;ry=new Date().getFullYear()}if(v==="intro"){im=0;iy=new Date().getFullYear()}if(v==="write"){B={cover:""};R=[]}view=v;render();if(v==="write"){restoreDraft();uiw()}scrollTo(0,0)}
 const LOGIN_LOGO='<svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg>';
 const lerr=m=>{const e=$("#lerr");if(e){e.textContent=m||"";e.style.display=m?"block":"none"}};
 // ===== 홈 화면 설치(PWA) =====
@@ -671,12 +716,14 @@ function installGuide(){
    +'<p class="lgd">크롬 등 다른 브라우저라면 메뉴(⋯)에서 ‘홈 화면에 추가’ 또는 ‘앱 설치’를 찾아 주세요.</p></div></div>';
   m.style.display="flex";document.body.style.overflow="hidden";
 }
-function logout(){if(!confirm("로그아웃할까요?\n이 기기에 저장된 이름과 접속 코드가 지워져요."))return;
-  NAME="";CODE="";try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("rcdraft")}catch(e){}
+function logout(quiet){if(!quiet&&!confirm("로그아웃할까요?\n이 기기에 저장된 로그인 정보가 지워져요."))return;
+  if(window.RC_AUTH)RC_AUTH.signOut();
+  NAME="";CODE="";GUEST=false;KAKAO=false;JOIN=null;try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("g");localStorage.removeItem("rcdraft")}catch(e){}
   D={reviews:[],likes:[],comments:[]};open={};openC={};view="login";render();scrollTo(0,0);setTimeout(()=>{const i=$("#ln");if(i)i.focus()},50)}
 function pwToggle(b){const i=$("#lc");i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"보기":"숨기기";b.setAttribute("aria-label",i.type==="password"?"접속 코드 보기":"접속 코드 숨기기");i.focus()}
 const LOGIN_HERO='<svg viewBox="0 0 410 480" aria-hidden="true"><defs><linearGradient id="lhR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bcd0ff"/></linearGradient><linearGradient id="lhA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#c4b5fd"/></linearGradient><linearGradient id="lhB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6f0ff"/><stop offset="1" stop-color="#a9c6ff"/></linearGradient></defs><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lhR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lhA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lhB)"/></svg>';
-function login(){return `<div class="lgw"><aside class="lpb"><div class="lpbi">
+const KICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.58 2 11c0 2.85 1.86 5.35 4.66 6.77l-.95 3.48c-.08.3.26.54.52.37l4.14-2.74c.53.07 1.07.12 1.63.12 5.52 0 10-3.58 10-8S17.52 3 12 3z"/></svg>';
+const lgShell=inner=>`<div class="lgw"><aside class="lpb"><div class="lpbi">
     <div class="lpmark">${LOGIN_HERO}</div>
     <p class="lpk">함께 성장하는 독서 파트너</p>
     <h1>서부<br>리딩 메이트</h1>
@@ -684,16 +731,48 @@ function login(){return `<div class="lgw"><aside class="lpb"><div class="lpbi">
     <ul class="lpfeat"><li><i>✍️</i>독후감·카드뉴스로 나누는 인사이트</li><li><i>📚</i>분야별 필독서와 혁신 기업가 추천 도서</li><li><i>🏅</i>매월 우수 메이트 · 매년 최우수 메이트</li></ul>
   </div></aside><div class="form lgn">
   <div class="lph"><span class="lgl">${LOGIN_LOGO}</span><div><b>서부 <em>리딩 메이트</em></b><span>함께 읽고, 나누고, 성장해요</span></div></div>
-  <div class="lpt"><h2>로그인</h2><p>서부 구성원만 이용할 수 있어요</p></div>
+  ${inner}
+  <p class="lpfoot"><a onclick="flink('terms')">이용약관</a><span>·</span><a onclick="flink('privacy')">개인정보처리방침</a><br>© 2026 sbfeed.co.kr</p>
+</div></div>`;
+const guestBtn='<div class="lgst"><button type="button" class="gbtn" onclick="browse()">로그인 없이 둘러보기 <span>›</span></button><p>둘러보기에서는 추천 도서·필독서·소개만 볼 수 있어요</p></div>';
+function browse(){GUEST=true;NAME="";try{localStorage.setItem("g","1")}catch(e){}view="feed";render();scrollTo(0,0)}
+function toLogin(){view="login";render();scrollTo(0,0)}
+function login(){const A=window.RC_AUTH,code=!A||A.legacy;
+  return lgShell(`<div class="lpt"><h2>로그인</h2><p>독후감·쓰기·메이트는 서부 구성원만 이용할 수 있어요</p></div>
+  ${A?`<button type="button" class="kbtn" onclick="RC_AUTH.kakao()">${KICON}카카오로 로그인</button><p class="khint">처음 한 번만 사내 접속 코드와 이름·부서를 등록하면 돼요</p>`:""}
+  ${A&&code?'<details class="lcode"><summary>사내 접속 코드로 로그인</summary>':""}${code?loginForm():""}${A&&code?"</details>":""}
+  ${guestBtn}`)}
+function join(){const j=JOIN||{};return lgShell(`<div class="lpt"><h2>직원 등록</h2><p>처음 한 번만 입력하면 다음부터는 카카오로 바로 들어와요</p></div>
+  <div class="jme">${KICON}<span>카카오 계정${j.nick?` <b>${esc(j.nick)}</b>`:""}으로 로그인했어요</span></div>
+  <form class="lgf" onsubmit="return joinGo(event)" novalidate>
+    <label for="jn">이름<span class="hint">피드와 메이트 순위에 표시돼요</span><input id="jn" maxlength="20" value="${esc(j.nick||"")}" placeholder="예: 홍길동" autocomplete="name"></label>
+    <label for="jd">부서<input id="jd" maxlength="20" placeholder="예: 생산팀" autocomplete="organization-title"></label>
+    <label for="lc">사내 접속 코드<span class="pw"><input id="lc" type="password" placeholder="관리자에게 받은 공통 코드" autocomplete="off"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
+    <p id="lerr" class="lerr" role="alert" aria-live="polite"></p>
+    <button class="btn lbtn" id="jgo" type="submit">등록하고 시작하기</button>
+  </form>
+  <button type="button" class="gbtn sm2" onclick="logout(1)">취소하고 처음으로</button>`)}
+async function joinGo(ev){if(ev)ev.preventDefault();lerr("");const n=$("#jn").value.trim(),d=$("#jd").value.trim(),c=$("#lc").value.trim(),b=$("#jgo");
+  if(!n){lerr("이름을 입력해 주세요.");$("#jn").focus();return false}
+  if(!c){lerr("사내 접속 코드를 입력해 주세요.");$("#lc").focus();return false}
+  b.disabled=true;b.textContent="등록 중…";
+  try{await RC_AUTH.join(c,n,d);view="intro";load(1)}
+  catch(e){b.disabled=false;b.textContent="등록하고 시작하기";
+    lerr({invalid_code:"접속 코드가 맞지 않아요. 다시 확인해 주세요.",name_taken:"이미 등록된 이름이에요. 부서를 붙여 주세요. (예: 홍길동(생산))",bad_name:"이름은 20자 이내로 입력해 주세요.",blocked:"이용이 제한된 계정이에요. 관리자에게 문의해 주세요.",not_logged_in:"카카오 로그인이 만료됐어요. 다시 로그인해 주세요."}[e&&e.code]||"등록하지 못했어요. 잠시 후 다시 시도해 주세요.")}
+  return false}
+const LOCKT={feed:["직원 독후감은 로그인 후 볼 수 있어요","서부 구성원이 남긴 독후감·카드뉴스·공감·댓글은 직원 전용 공간이에요"],
+  write:["독후감 쓰기는 직원 전용이에요","로그인하면 책을 검색해 독후감과 카드뉴스를 올릴 수 있어요"],
+  rank:["메이트는 직원 전용이에요","월간 우수 메이트와 연간 최우수 메이트는 로그인 후 볼 수 있어요"]};
+const lockBox=k=>{const t=LOCKT[k];return `<div class="lockb"><div class="lki">🔒</div><b>${t[0]}</b><p>${t[1]}</p><button class="btn${window.RC_AUTH?" kbtn2":""}" onclick="toLogin()">${window.RC_AUTH?KICON+"카카오로 로그인":"로그인"}</button></div>`};
+function lockV(){return `<div class="form lockw">${lockBox(LOCK)}<div class="lkgo"><button class="chip" onclick="go('feed')">🏠 추천 도서 보기</button><button class="chip" onclick="go('req')">📚 필독서 보기</button></div></div>`}
+function loginForm(){return `
   <form class="lgf" onsubmit="return enter(event)" novalidate>
     <label for="ln">이름<span class="hint">피드와 메이트 순위에 표시돼요</span><input id="ln" value="${esc(NAME)}" maxlength="30" placeholder="예: 홍길동" autocomplete="name" enterkeyhint="next"></label>
     <label for="lc">사내 접속 코드<span class="pw"><input id="lc" type="password" value="${esc(CODE)}" placeholder="관리자에게 받은 코드" autocomplete="current-password" enterkeyhint="go"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
     <p id="lerr" class="lerr" role="alert" aria-live="polite"></p>
     <button class="btn lbtn" id="lgo" type="submit">입장하기</button>
   </form>
-  <p class="lhelp">접속 코드를 모르시면 관리자에게 문의해 주세요<br><a href="mailto:admin@sbfeed.co.kr">admin@sbfeed.co.kr</a></p>
-  <p class="lpfoot"><a onclick="flink('terms')">이용약관</a><span>·</span><a onclick="flink('privacy')">개인정보처리방침</a><br>© 2026 sbfeed.co.kr</p>
-</div></div>`}
+  <p class="lhelp">접속 코드를 모르시면 관리자에게 문의해 주세요<br><a href="mailto:admin@sbfeed.co.kr">admin@sbfeed.co.kr</a></p>`}
 async function enter(ev){if(ev)ev.preventDefault();lerr("");const n=$("#ln").value.trim(),c=$("#lc").value.trim(),b=$("#lgo");
   if(!n){lerr("이름을 입력해 주세요.");$("#ln").focus();return false}
   if(!c){lerr("사내 접속 코드를 입력해 주세요.");$("#lc").focus();return false}
@@ -762,6 +841,7 @@ document.addEventListener("input",()=>{if(view==="write"){saveDraft();uiw()}});
 function feed(){
   const chips=`<div class="chips">${["전체",...CATS].map(c=>`<button class="chip${c===cat?" on2":""}" onclick="cat='${c}';render()">${c}</button>`).join("")}</div>`;
   
+  if(isGuest())return `${featured()}${sitCards()}${innoCards()}${lockBox("feed")}`;
   return `${featured()}${sitCards()}${innoCards()}`+'<div class="fbar">'+chips+`<div class="row" style="padding:10px 16px"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="fs=this.value;fl()"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>`;
 }
 const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
@@ -842,5 +922,6 @@ async function sub(){
   try{await api("/api/review",{book,author:$("#fa").value.trim(),cover:B.cover,isbn:B.isbn||"",quote:$("#fq").value.trim(),rating:+$("#fsr").value,tags:$("#ft").value.split(/[\s,#]+/).filter(Boolean).slice(0,6),cat:$("#fc").value,headline:$("#fh").value.trim(),review:$("#fr").value.trim(),cards});try{localStorage.removeItem("rcdraft")}catch(e){}await load(1);const mr=D.reviews.filter(r=>r.uid===NAME).sort((a,b)=>b.createdAt-a.createdAt)[0];doneId=mr?mr.id:"";view="done";render();scrollTo(0,0)}
   catch(e){if(e)alert("올리지 못했어요.")}
 }
-load(1);setInterval(()=>load(),10000);addEventListener("scroll",()=>$("#top").classList.toggle("show",scrollY>600));
+async function boot(){if(window.RC_AUTH){try{await RC_AUTH.init()}catch(e){}}load(1)}
+boot();setInterval(()=>load(),10000);addEventListener("scroll",()=>$("#top").classList.toggle("show",scrollY>600));
 </script></body></html>
