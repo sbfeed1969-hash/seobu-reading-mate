@@ -194,6 +194,20 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
   .sl .sbi span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
   .sl .sbi img{box-shadow:2px 3px 8px rgba(0,0,0,.28)}
   .sl .sbp{width:24px;height:24px;font-size:11px;left:calc(100% - 27px);top:calc(150cqw - 27px)}
+  /* 혁신 기업가: 5권을 간결한 줄로, 소개는 한 줄 */
+  .inw .isl{padding:14px 14px 4px!important}
+  .inw .ish{padding-bottom:8px;gap:10px}.inw .iav{width:36px;height:36px;font-size:15px}.inw .ish b{font-size:15.5px}.inw .ish small{font-size:11.5px}
+  .inw .ibl li{gap:11px;padding:8px 0;align-items:center}
+  .inw .ibc img{width:40px;height:58px}
+  .inw .ibt a{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inw .ibt small{margin:1px 0 2px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inw .ibt p{font-size:12px;line-height:1.45;color:#c3cce6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inw .isl:not(.open) .ibl li:nth-child(n+6){display:none}
+  /* 모두 보기: 카드 높이는 한 화면 그대로, 목록만 안에서 스크롤 */
+  .inw .isl{scroll-margin-top:72px}
+  .inw .isl.open .ibl{max-height:calc(100dvh - 290px);min-height:240px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin-right:-6px;padding-right:6px;mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
+  .inw .isl.open .ibl::-webkit-scrollbar{width:4px}.inw .isl.open .ibl::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
+  .inw .imore{margin:2px 0 8px;padding:9px}
 }
 @media(prefers-color-scheme:dark){.sl{background:linear-gradient(165deg,#1b2238 0%,#202945 100%);border-color:#2a3456}.sl .sbi{color:#d6dcf0!important}.sbub{background:#eef2fc}.scnt{background:rgba(255,255,255,.08);color:#c3cbe6}}
 .sg{gap:14px 12px;padding:4px 4px 6px}
@@ -216,7 +230,7 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 .ibc{flex:0 0 auto}.ibc img{width:54px;height:79px;object-fit:cover;border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,.35);display:block;background:#2a3456}
 .ibt{flex:1;min-width:0}.ibt a{color:#9cc0ff;font-weight:800;font-size:15px;text-decoration:none;line-height:1.35;word-break:keep-all}.ibt a:hover{text-decoration:underline}.ibn2{color:#fff;margin-right:5px}
 .ibt small{display:block;color:#b3bedb;font-size:12.5px;margin:3px 0 5px}.ibt p{margin:0;font-size:13px;line-height:1.55;color:#dde3f3;word-break:keep-all}
-.inw .sitc{align-items:flex-start}.isl:not(.open) .ibl li:nth-child(n+7){display:none}.imore{display:block;width:100%;margin:4px 0 10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.08);color:#dfe6fb;font-weight:700;font-size:13.5px}.imore:hover{background:rgba(255,255,255,.14)}
+.inw .sitc{align-items:flex-start}.isl:not(.open) .ibl li:nth-child(n+7){display:none}.imore{display:block;width:100%;margin:4px 0 10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.08);color:#dfe6fb;font-weight:700;font-size:13.5px}.imore:hover{background:rgba(255,255,255,.14)}@media (min-width:641px){.imore.mo{display:none}}
 .ow{display:inline-block;font-size:10.5px;font-weight:800;color:#18223f;background:#9cc0ff;border-radius:6px;padding:0 5px;margin-left:5px;vertical-align:1px}
 .sbp2{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);font-size:15px;padding:0}.sbp2:hover{background:rgba(255,255,255,.2)}
 /* 로그인(접속 코드) 화면 */
@@ -844,7 +858,7 @@ function wrs(si,bi){const t=SIT[si][1][bi];try{localStorage.removeItem("rcdraft"
 function wrf(){try{localStorage.removeItem("rcdraft")}catch(e){}go("write");$("#fb").value=FEAT.title;$("#fa").value=FEAT.author;$("#fc").value="자기계발";uiw()}
 function innoCards(){
   const m=myBooks();
-  return `<div class="sitw inw"><div class="sith"><b>🚀 혁신 기업가의 추천 도서</b><span class="hint">옆으로 넘겨보세요 · 제목이나 표지를 누르면 책 소개</span><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전 카드">‹</button><button onclick="cnav(this,1)" aria-label="다음 카드">›</button></span></div><div class="sitc">${INNO.map((p,pi)=>`<div class="isl"><div class="ish"><span class="iav">${esc(p.n.slice(0,1))}</span><div><b>${esc(p.n)}</b><small>${esc(p.r)} · ${p.b.length}권</small></div><span class="scnt">${pi+1}/${INNO.length}</span></div><ol class="ibl">${p.b.map(([id,d],k)=>{const b=BOOKS[id],u=esc(bookLink(id));return `<li><a class="ibc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(b.t)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><div class="ibt"><a href="${u}" target="_blank" rel="noopener"><span class="ibn2">${k+1}.</span>${esc(b.t)}${m.has(nz(b.t))?" ✅":""}</a><small>${esc(b.a)}${b.f?'<b class="ow">원서</b>':""}</small><p>${esc(d)}</p></div><button class="sbp2" onclick="wri('${id}')" aria-label="${esc(b.t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></li>`}).join("")}</ol>${p.b.length>6?`<button class="imore" onclick="const s=this.closest('.isl');s.classList.toggle('open');this.textContent=s.classList.contains('open')?'접기 ▲':'${p.b.length}권 모두 보기 ▼'">${p.b.length}권 모두 보기 ▼</button>`:""}</div>`).join("")}</div></div>`;
+  return `<div class="sitw inw"><div class="sith"><b>🚀 혁신 기업가의 추천 도서</b><span class="hint">옆으로 넘겨보세요 · 제목이나 표지를 누르면 책 소개</span><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전 카드">‹</button><button onclick="cnav(this,1)" aria-label="다음 카드">›</button></span></div><div class="sitc">${INNO.map((p,pi)=>`<div class="isl"><div class="ish"><span class="iav">${esc(p.n.slice(0,1))}</span><div><b>${esc(p.n)}</b><small>${esc(p.r)} · ${p.b.length}권</small></div><span class="scnt">${pi+1}/${INNO.length}</span></div><ol class="ibl">${p.b.map(([id,d],k)=>{const b=BOOKS[id],u=esc(bookLink(id));return `<li><a class="ibc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(b.t)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><div class="ibt"><a href="${u}" target="_blank" rel="noopener"><span class="ibn2">${k+1}.</span>${esc(b.t)}${m.has(nz(b.t))?" ✅":""}</a><small>${esc(b.a)}${b.f?'<b class="ow">원서</b>':""}</small><p>${esc(d)}</p></div><button class="sbp2" onclick="wri('${id}')" aria-label="${esc(b.t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></li>`}).join("")}</ol>${p.b.length>5?`<button class="imore${p.b.length>6?"":" mo"}" onclick="const s=this.closest('.isl'),o=s.classList.toggle('open');this.textContent=o?'접기 ▲':'${p.b.length}권 모두 보기 ▼';s.querySelector('.ibl').scrollTop=0;if(window.innerWidth<=640)window.scrollTo({top:s.getBoundingClientRect().top+window.scrollY-72,behavior:'smooth'})">${p.b.length}권 모두 보기 ▼</button>`:""}</div>`).join("")}</div></div>`;
 }
 function wri(id){const b=BOOKS[id];if(!b)return;try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=BIMG[id]||"";$("#fb").value=b.t;$("#fa").value=b.a||"";uiw()}let fq="",fs="new";
 function flist(){
