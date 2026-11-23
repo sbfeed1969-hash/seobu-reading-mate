@@ -208,6 +208,19 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
   .inw .isl.open .ibl{max-height:calc(100dvh - 290px);min-height:240px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin-right:-6px;padding-right:6px;mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
   .inw .isl.open .ibl::-webkit-scrollbar{width:4px}.inw .isl.open .ibl::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
   .inw .imore{margin:2px 0 8px;padding:9px}
+  /* 필독서: 머리글 압축 · 분류당 5권 · 한 줄 정보 */
+  .rqh .gt{font-size:22px!important}.rqh .rqs2{display:none}
+  .rq{padding:2px 12px 6px;scroll-margin-top:72px}.rq summary{padding:11px 0}
+  .rq .rb{gap:10px;padding:7px 4px;font-size:13.5px}
+  .rq .rbc img{width:36px;height:52px}
+  .rq .rbi{gap:1px!important}
+  .rq .rbt{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+  .rq .rbi .nw{display:none}
+  .rq .rbi small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
+  .rq .rb .btn{padding:5px 10px}
+  .rq:not(.all) .rbl>.rb:nth-child(n+6){display:none}
+  .rq.all .rbl{max-height:calc(100dvh - 300px);min-height:240px;overflow-y:auto;overscroll-behavior:contain;mask-image:linear-gradient(180deg,#000 calc(100% - 24px),transparent)}
+  .rqm{display:block;width:100%;margin:6px 0 4px;padding:10px;border-radius:12px;background:var(--bg);color:var(--fg);font-weight:700;font-size:13px;border:1px solid var(--line)}
 }
 @media(prefers-color-scheme:dark){.sl{background:linear-gradient(165deg,#1b2238 0%,#202945 100%);border-color:#2a3456}.sl .sbi{color:#d6dcf0!important}.sbub{background:#eef2fc}.scnt{background:rgba(255,255,255,.08);color:#c3cbe6}}
 .sg{gap:14px 12px;padding:4px 4px 6px}
@@ -230,7 +243,7 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 .ibc{flex:0 0 auto}.ibc img{width:54px;height:79px;object-fit:cover;border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,.35);display:block;background:#2a3456}
 .ibt{flex:1;min-width:0}.ibt a{color:#9cc0ff;font-weight:800;font-size:15px;text-decoration:none;line-height:1.35;word-break:keep-all}.ibt a:hover{text-decoration:underline}.ibn2{color:#fff;margin-right:5px}
 .ibt small{display:block;color:#b3bedb;font-size:12.5px;margin:3px 0 5px}.ibt p{margin:0;font-size:13px;line-height:1.55;color:#dde3f3;word-break:keep-all}
-.inw .sitc{align-items:flex-start}.isl:not(.open) .ibl li:nth-child(n+7){display:none}.imore{display:block;width:100%;margin:4px 0 10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.08);color:#dfe6fb;font-weight:700;font-size:13.5px}.imore:hover{background:rgba(255,255,255,.14)}@media (min-width:641px){.imore.mo{display:none}}
+.inw .sitc{align-items:flex-start}.isl:not(.open) .ibl li:nth-child(n+7){display:none}.imore{display:block;width:100%;margin:4px 0 10px;padding:11px;border-radius:14px;background:rgba(255,255,255,.08);color:#dfe6fb;font-weight:700;font-size:13.5px}.imore:hover{background:rgba(255,255,255,.14)}@media (min-width:641px){.imore.mo,.rqm{display:none}}
 .ow{display:inline-block;font-size:10.5px;font-weight:800;color:#18223f;background:#9cc0ff;border-radius:6px;padding:0 5px;margin-left:5px;vertical-align:1px}
 .sbp2{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);font-size:15px;padding:0}.sbp2:hover{background:rgba(255,255,255,.2)}
 /* 로그인(접속 코드) 화면 */
@@ -641,16 +654,20 @@ const myBooks=()=>new Set(D.reviews.filter(r=>r.uid===NAME).map(r=>nz(r.book)));
 function reqStat(){const m=myBooks();let t=0,d=0;REQ.forEach(G=>G.s.forEach(S=>S.b.forEach(x=>{t++;if(m.has(nz(x)))d++})));return{t,d}}
 function req(){
   const m=myBooks(),st=reqStat(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
-  return `${featured()}<div class="form"><div class="gt" style="font-size:28px;font-weight:900">필독서</div><span class="hint">분야별로 읽고 독후감을 남겨보세요 · 내가 읽은 책 ${st.d}/${st.t}</span><span class="hint">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
+  return `${featured()}<div class="form rqh"><div class="gt" style="font-size:28px;font-weight:900">필독서</div><span class="hint">분야별로 읽고 독후감을 남겨보세요 · 내가 읽은 책 ${st.d}/${st.t}</span><span class="hint rqs2">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
   <div class="chips" style="background:none;border:0;padding:0">${REQ.map((x,i)=>`<button class="chip${i===rg?" on2":""}" onclick="rg=${i};render()">${x.g}</button>`).join("")}</div>
   <div class="row"><input placeholder="🔍 필독서 제목 검색" value="${esc(rqs)}" oninput="rqs=this.value;rl()"><select style="width:auto" onchange="rqf=this.value;rl()"><option value="all">전체</option><option value="un"${rqf==="un"?" selected":""}>안 읽은 책</option></select></div><div id="rl">${rlist()}</div></div>`;
 }
 function rlist(){
   const m=myBooks(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
-  return G.s.map((S,si)=>`<details class="rq"${(si===0||rqs||innerWidth>=1024)?" open":""}><summary><b>${esc(S.n)}</b><span class="hint">${S.b.filter(done).length}/${S.b.length}</span></summary>${S.b.map((x,k)=>{
+  const all=!!(rqs||rqf==="un");
+  return G.s.map((S,si)=>`<details class="rq${all?" all":""}"${(si===0||rqs||innerWidth>=1024)?" open":""}><summary><b>${esc(S.n)}</b><span class="hint">${S.b.filter(done).length}/${S.b.length}</span></summary><div class="rbl">${S.b.map((x,k)=>{
     const id=S.ids[k],b=BOOKS[id];if((rqf==="un"&&done(x))||(rqs&&!nz(x+b.a).includes(nz(rqs))))return "";const u=esc(bookLink(id));
-    return `<div class="rb"><a class="rbc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(x)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><span class="rbi"><a class="rbt" href="${u}" target="_blank" rel="noopener">${done(x)?"✅ ":""}${esc(x)}</a>${b.n?'<b class="nw">NEW</b>':""}<small class="hint">${esc(b.a)}${b.p?" · "+esc(b.p):""}${b.y?" · "+b.y:""}</small></span><span class="hint">${cnt(x)?"💬"+cnt(x):""}</span><button class="btn g" onclick="wr(${rg},${si},${k})">쓰기</button></div>`}).join("")}</details>`).join("");
+    return `<div class="rb"><a class="rbc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(x)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><span class="rbi"><a class="rbt" href="${u}" target="_blank" rel="noopener">${done(x)?"✅ ":""}${esc(x)}</a>${b.n?'<b class="nw">NEW</b>':""}<small class="hint">${esc(b.a)}${b.p?" · "+esc(b.p):""}${b.y?" · "+b.y:""}</small></span><span class="hint">${cnt(x)?"💬"+cnt(x):""}</span><button class="btn g" onclick="wr(${rg},${si},${k})">쓰기</button></div>`}).join("")}</div>${!all&&S.b.length>5?`<button class="rqm" onclick="rqMore(this,${S.b.length})">${S.b.length}권 모두 보기 ▼</button>`:""}</details>`).join("");
 }
+// 모바일: 분류 하나씩만 펼치고(아코디언), 모두 보기는 목록 안에서 스크롤
+function rqMore(b,n){const d=b.closest(".rq"),o=d.classList.toggle("all");b.textContent=o?"접기 ▲":n+"권 모두 보기 ▼";d.querySelector(".rbl").scrollTop=0;if(window.innerWidth<=640)window.scrollTo({top:d.getBoundingClientRect().top+window.scrollY-72,behavior:"smooth"})}
+document.addEventListener("toggle",e=>{const d=e.target;if(window.innerWidth>640||!d.matches||!d.matches("details.rq")||!d.open)return;document.querySelectorAll("details.rq[open]").forEach(x=>{if(x!==d)x.open=false});setTimeout(()=>window.scrollTo({top:d.getBoundingClientRect().top+window.scrollY-72,behavior:"smooth"}),30)},true);
 const pend=new Set(),chk=new Set();
 async function fillMeta(det){
   const rows=[...det.querySelectorAll(".rb[data-t]")],need=rows.map(e=>e.dataset.t).filter(t=>(META[t]===undefined||(META[t]&&!META[t][2]))&&!pend.has(t)&&!chk.has(t));
@@ -875,8 +892,8 @@ document.addEventListener("input",()=>{if(view==="write"){saveDraft();uiw()}});
 function feed(){
   const chips=`<div class="chips">${["전체",...CATS].map(c=>`<button class="chip${c===cat?" on2":""}" onclick="cat='${c}';render()">${c}</button>`).join("")}</div>`;
   
-  if(isGuest())return `${featured()}${sitCards()}${innoCards()}${lockBox("feed")}`;
-  return `${featured()}${sitCards()}${innoCards()}`+'<div class="fbar">'+chips+`<div class="row" style="padding:10px 16px"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="fs=this.value;fl()"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>`;
+  if(isGuest())return `${sitCards()}${innoCards()}${lockBox("feed")}`;
+  return `${sitCards()}${innoCards()}`+'<div class="fbar">'+chips+`<div class="row" style="padding:10px 16px"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="fs=this.value;fl()"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>`;
 }
 const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
