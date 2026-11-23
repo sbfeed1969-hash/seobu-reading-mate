@@ -234,6 +234,9 @@ body.nolog header+div{display:none}
 .lcode{border:1px solid var(--line);border-radius:14px;padding:0 14px}.lcode summary{cursor:pointer;padding:13px 0;font-size:13.5px;font-weight:700;color:var(--sub);list-style:none;display:flex;justify-content:space-between}.lcode summary::after{content:"›";transform:rotate(90deg);transition:.2s}.lcode[open] summary::after{transform:rotate(-90deg)}.lcode summary::-webkit-details-marker{display:none}.lcode[open]{padding-bottom:14px}.lcode .lgf{margin-bottom:12px}
 .lgst{display:grid;gap:6px;text-align:center;padding-top:14px;border-top:1px dashed var(--line)}.lgst p{margin:0;font-size:12px;color:var(--sub)}
 .gbtn{width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;font-weight:700;color:var(--fg);cursor:pointer}.gbtn:hover{border-color:#c7d2fe;background:var(--bg)}.gbtn span{color:var(--sub)}.gbtn.sm2{border:0;font-size:13px;color:var(--sub);padding:6px}
+.lgf select{padding:13px 14px;font-size:16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);width:100%}.lgf select:focus{outline:none;border-color:#6d7cf7;box-shadow:0 0 0 3px rgba(91,108,247,.18)}#jdx{margin-top:6px}
+.lgf .bad,.lgf .pw.bad input{border-color:#e11d48!important;box-shadow:0 0 0 3px rgba(225,29,72,.15)!important}.lgf .pw.bad{box-shadow:none!important}
+.lerr{scroll-margin:80px}
 .jme{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fffbd6;color:#3d3500;font-size:13.5px}.jme svg{width:20px;height:20px;flex:0 0 auto}
 .lockb{text-align:center;padding:30px 20px;margin:18px 16px;border-radius:22px;background:linear-gradient(180deg,var(--panel),var(--bg));border:1px dashed #c7d2fe;display:grid;gap:8px;justify-items:center}
 .lockb .lki{width:56px;height:56px;border-radius:18px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:26px}.lockb b{font-size:17px}.lockb p{margin:0 0 6px;font-size:13.5px;color:var(--sub);line-height:1.6;max-width:360px}
@@ -746,15 +749,21 @@ function join(){const j=JOIN||{};return lgShell(`<div class="lpt"><h2>직원 등
   <div class="jme">${KICON}<span>카카오 계정${j.nick?` <b>${esc(j.nick)}</b>`:""}으로 로그인했어요</span></div>
   <form class="lgf" onsubmit="return joinGo(event)" novalidate>
     <label for="jn">이름<span class="hint">피드와 메이트 순위에 표시돼요</span><input id="jn" maxlength="20" value="${esc(j.nick||"")}" placeholder="예: 홍길동" autocomplete="name"></label>
-    <label for="jd">부서<input id="jd" maxlength="20" placeholder="예: 생산팀" autocomplete="organization-title"></label>
+    <label for="jd">부서<select id="jd" onchange="jdOther()"><option value="">부서를 선택해 주세요</option>${DEPTS.map(([g,L])=>L?`<optgroup label="${esc(g)}">${L.map(d=>`<option>${esc(d)}</option>`).join("")}</optgroup>`:`<option>${esc(g)}</option>`).join("")}<option value="__etc">기타 (직접 입력)</option></select><input id="jdx" maxlength="20" placeholder="부서 이름을 입력해 주세요" hidden></label>
     <label for="lc">사내 접속 코드<span class="pw"><input id="lc" type="password" placeholder="관리자에게 받은 공통 코드" autocomplete="off"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
     <p id="lerr" class="lerr" role="alert" aria-live="polite"></p>
     <button class="btn lbtn" id="jgo" type="submit">등록하고 시작하기</button>
   </form>
   <button type="button" class="gbtn sm2" onclick="logout(1)">취소하고 처음으로</button>`)}
-async function joinGo(ev){if(ev)ev.preventDefault();lerr("");const n=$("#jn").value.trim(),d=$("#jd").value.trim(),c=$("#lc").value.trim(),b=$("#jgo");
-  if(!n){lerr("이름을 입력해 주세요.");$("#jn").focus();return false}
-  if(!c){lerr("사내 접속 코드를 입력해 주세요.");$("#lc").focus();return false}
+// 서부사료 조직 (조직이 바뀌면 여기만 고치세요) — [부문, [소속 팀…]] 또는 [부서]
+const DEPTS=[["경영진"],["부사장",["부사장","마케팅팀"]],["생산연구부문"],["FC사업부문"],["경영관리부문"],["계열화사업부문"],["운영관리"],["GMG"]];
+function jdOther(){const x=$("#jdx"),o=$("#jd").value==="__etc";x.hidden=!o;if(o)x.focus()}
+function jbad(el,msg){document.querySelectorAll(".lgf .bad").forEach(e=>e.classList.remove("bad"));lerr(msg);if(el){el.classList.add("bad");el.scrollIntoView({block:"center",behavior:"smooth"});setTimeout(()=>el.focus(),250);el.addEventListener("input",()=>el.classList.remove("bad"),{once:true});el.addEventListener("change",()=>el.classList.remove("bad"),{once:true})}}
+async function joinGo(ev){if(ev)ev.preventDefault();lerr("");const n=$("#jn").value.trim(),sel=$("#jd").value,d=sel==="__etc"?$("#jdx").value.trim():sel,c=$("#lc").value.trim(),b=$("#jgo");
+  if(!n)return jbad($("#jn"),"이름을 입력해 주세요."),false;
+  if(!sel)return jbad($("#jd"),"부서를 선택해 주세요."),false;
+  if(!d)return jbad($("#jdx"),"부서 이름을 입력해 주세요."),false;
+  if(!c)return jbad($("#lc").closest(".pw")||$("#lc"),"사내 접속 코드를 입력해 주세요. (관리자에게 받은 공통 코드)"),false;
   b.disabled=true;b.textContent="등록 중…";
   try{await RC_AUTH.join(c,n,d);view="intro";load(1)}
   catch(e){b.disabled=false;b.textContent="등록하고 시작하기";
