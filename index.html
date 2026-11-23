@@ -402,7 +402,7 @@ async function tok(){if(!SESS)return null;if(nowS()<SESS.exp-60)return SESS.at;
     saveS({at:j.access_token,rt:j.refresh_token,exp:j.expires_at||nowS()+(j.expires_in||3600)});return SESS.at}catch(e){return SESS.at}}
 const jwtNick=t=>{try{const p=JSON.parse(decodeURIComponent(escape(atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));const m=p.user_metadata||{};return m.name||m.full_name||m.nickname||m.preferred_username||m.user_name||""}catch(e){return""}};
 window.RC_AUTH={legacy:true, // 전환 기간: 접속 코드 로그인도 허용(닫으려면 false + DB rc_config legacy_code_login=off)
-  kakao(){location.href=SB_URL+"/auth/v1/authorize?provider=kakao&redirect_to="+encodeURIComponent(location.origin+"/")},
+  kakao(){location.href="/api/kakao"}, // 사이트 서버가 카카오 로그인(닉네임만) 후 Supabase 세션을 돌려줌
   async init(){const h=new URLSearchParams(location.hash.slice(1)),q=new URLSearchParams(location.search);
     if(h.get("access_token")){saveS({at:h.get("access_token"),rt:h.get("refresh_token"),exp:+h.get("expires_at")||nowS()+(+h.get("expires_in")||3600)});history.replaceState(null,"",location.pathname)}
     else if(h.get("error")||q.get("error")){const m=h.get("error_description")||q.get("error_description")||"";history.replaceState(null,"",location.pathname);setTimeout(()=>alert("카카오 로그인에 실패했어요. 다시 시도해 주세요.\n"+m),300)}
