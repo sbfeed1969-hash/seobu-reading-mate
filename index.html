@@ -184,6 +184,17 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
 .sbp{width:28px;height:28px;font-size:13px;left:calc(100% - 31px);top:calc(150cqw - 31px)}
 .sg{gap:20px 10px}
 @media (min-width:1024px){.sbw{max-width:100px}.sl .sbi{font-size:14.5px!important}.sg{gap:22px 12px}}
+/* 모바일: 상황 하나(제목+책 전부)가 한 화면에 들어오도록 4열·작은 표지·한 줄 제목 */
+@media (max-width:640px){
+  .sl{padding:14px 12px 12px!important}
+  .sl .sth{padding:0 2px 10px;margin-bottom:12px;gap:10px}.sl .stn{width:36px;height:36px;border-radius:11px;font-size:13px}.sl .stt b{font-size:15.5px}.sl .stt small{font-size:11px}
+  .sl .sg{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px 10px!important;padding:2px 0 2px!important}
+  .sl .sbw{max-width:80px;min-width:0;width:100%}.sl .sbi{min-width:0}
+  .sl .sbi{font-size:12px!important;gap:5px;line-height:1.3}
+  .sl .sbi span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+  .sl .sbi img{box-shadow:2px 3px 8px rgba(0,0,0,.28)}
+  .sl .sbp{width:24px;height:24px;font-size:11px;left:calc(100% - 27px);top:calc(150cqw - 27px)}
+}
 @media(prefers-color-scheme:dark){.sl{background:linear-gradient(165deg,#1b2238 0%,#202945 100%);border-color:#2a3456}.sl .sbi{color:#d6dcf0!important}.sbub{background:#eef2fc}.scnt{background:rgba(255,255,255,.08);color:#c3cbe6}}
 .sg{gap:14px 12px;padding:4px 4px 6px}
 .sbi{aspect-ratio:auto!important;background:none!important;padding:0!important;box-shadow:none!important;display:flex!important;flex-direction:column;justify-content:flex-start!important;gap:7px;color:#fff!important;font-size:12.5px!important}
