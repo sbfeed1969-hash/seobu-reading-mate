@@ -861,7 +861,7 @@ async function joinGo(ev){if(ev)ev.preventDefault();lerr("");const n=$("#jn").va
   return false}
 const LOCKT={feed:["직원 독후감은 로그인 후 볼 수 있어요","서부 구성원이 남긴 독후감·카드뉴스·공감·댓글은 직원 전용 공간이에요"],
   write:["독후감 쓰기는 직원 전용이에요","로그인하면 책을 검색해 독후감과 카드뉴스를 올릴 수 있어요"],
-  rank:["메이트는 직원 전용이에요","월간 우수 메이트와 연간 최우수 메이트는 로그인 후 볼 수 있어요"]};
+  rank:["메이트는 직원 전용이에요","월간 우수 메이트와 연간 최우수 메이트는<br>로그인 후 볼 수 있어요"]};
 const lockBox=k=>{const t=LOCKT[k];return `<div class="lockb"><div class="lki">🔒</div><b>${t[0]}</b><p>${t[1]}</p><button class="btn${window.RC_AUTH?" kbtn2":""}" onclick="toLogin()">${window.RC_AUTH?KICON+"카카오로 로그인":"로그인"}</button></div>`};
 function lockV(){return `<div class="form lockw">${lockBox(LOCK)}<div class="lkgo"><button class="chip" onclick="go('feed')">🏠 추천 도서 보기</button><button class="chip" onclick="go('req')">📚 필독서 보기</button></div></div>`}
 function loginForm(){return `
