@@ -851,13 +851,18 @@ async function api(p,b){
 async function load(force){
   if(isGuest()){if(view==="login"||view==="join")view="feed";if(force)render();return}
   if(!NAME){if(force||(view!=="login"&&view!=="join")){view=JOIN?"join":"login";render()}return}
-  try{D=await api("/api/data")}catch(e){return}
+  let nd;try{nd=await api("/api/data")}catch(e){return}
+  const same=JSON.stringify(nd)===JSON.stringify(D);D=nd;
+  if(same&&!force)return; // 새 글·공감·댓글이 없으면 화면을 다시 그리지 않음(넘기던 카드 위치 유지)
   const a=document.activeElement;if(!force&&a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;
   if(view==="feed"||view==="rank"||view==="intro")render();
 }
-function render(){MC=mates(0);MC.best=prevBest();
+// 다시 그릴 때 옆으로 넘기던 카드 위치·'모두 보기' 펼침 상태를 그대로 유지
+function keepUI(){const s={};document.querySelectorAll("#app .sitw").forEach((w,i)=>{const c=w.querySelector(".sitc");const k=w.className+"#"+i;s[k]={x:c?c.scrollLeft:0,open:[...w.querySelectorAll(".isl")].map(e=>e.classList.contains("open"))}});return s}
+function restoreUI(s){document.querySelectorAll("#app .sitw").forEach((w,i)=>{const v=s[w.className+"#"+i];if(!v)return;w.querySelectorAll(".isl").forEach((e,j)=>{if(v.open[j]){e.classList.add("open");const b=e.querySelector(".imore");if(b)b.textContent="접기 ▲"}});const c=w.querySelector(".sitc");if(c&&v.x){c.style.scrollSnapType="none";c.scrollLeft=v.x;requestAnimationFrame(()=>{c.style.scrollSnapType=""})}})}
+function render(){const ui=view==="feed"?keepUI():null;MC=mates(0);MC.best=prevBest();
   $("#nav").innerHTML=(canInstall()&&view!=="login"&&view!=="join"?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+navHtml();
-  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
+  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);if(ui&&view==="feed")restoreUI(ui);
 }
 function navHtml(){const L=view==="login"||view==="join";return NAME&&!L?'<button class="lo" onclick="logout()" aria-label="로그아웃">로그아웃</button>':isGuest()&&!L?'<button class="lo lin" onclick="toLogin()">🔑 로그인</button>':""}
 let LOCK="write";
