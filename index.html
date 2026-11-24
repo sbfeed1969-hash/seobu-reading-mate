@@ -981,7 +981,7 @@ const Y27M=[["새해, 이번엔 진짜 바뀌는 해",[["1주차","고전 문학
  ["연말, 삶을 돌아보는 책",[["1주차","고전 문학","크리스마스 캐럴","찰스 디킨스"],["2주차","인문·철학","인생 수업","엘리자베스 퀴블러 로스"],["3주차","자기계발","모리와 함께한 화요일","미치 앨봄"],["4주차","찐 독서러 PICK","이처럼 사소한 것들","클레어 키건"]]]];
 const ymImg=t=>Y27MI[t]||SITIMG[t]||y27img(t);
 const ymUrl=t=>Y27MID[t]?"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId="+Y27MID[t]:y27url(t);
-let y27t="m";
+let y27t="c";
 const y27bid=t=>{const n=nz(t);return Object.keys(BOOKS).find(i=>nz(BOOKS[i].t)===n)};
 const y27img=t=>{if(Y27IMG[t])return Y27IMG[t];if(SITIMG[t])return SITIMG[t];const i=y27bid(t);return i?BIMG[i]:""};
 const y27url=t=>{if(Y27ID[t])return "https://www.aladin.co.kr/shop/wproduct.aspx?ItemId="+Y27ID[t];if(SITID[t])return bookUrl(t);const i=y27bid(t);return i?bookLink(i):bookUrl(t)};
@@ -993,7 +993,7 @@ function y27Cards(){
     return `<div class="ym"><div class="ymh"><b>${mi+1}<small>월</small></b><span>${esc(theme)}</span><i>${mi+1}/12</i></div><ol>${rows}</ol></div>`}).join("");
   const cats=Y27C.map(([g,L],ci)=>`<div class="sl"><div class="sth"><span class="stn">${String(ci+1).padStart(2,"0")}</span><div class="stt"><small>분야 ${ci+1} / ${Y27C.length}</small><b>${esc(g)}</b></div></div><div class="sg">${L.map(t=>{const im=y27img(t);return `<div class="sbw"><a class="sb sbi" href="${esc(y27url(t))}" target="_blank" rel="noopener" aria-label="${esc(t)} 책 소개 보기">${m.has(nz(t))?"<em>✅</em>":""}${im?`<img src="${im}" alt="">`:`<i class="ynoimg">${esc(t)}</i>`}<span>${esc(t)}</span></a><button class="sbp" onclick="wry('${esc(t).replace(/'/g,"\\'")}')" aria-label="${esc(t)} 독후감 쓰기" title="독후감 쓰기">✍️</button></div>`}).join("")}</div></div>`).join("");
   return `<div class="sitw y27"><div class="sith"><b>🗓️ 2027년 추천 도서</b><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전">‹</button><button onclick="cnav(this,1)" aria-label="다음">›</button></span>
-    <div class="yseg"><button class="${y27t==="m"?"on":""}" onclick="y27t='m';render()">월별 스케줄</button><button class="${y27t==="c"?"on":""}" onclick="y27t='c';render()">분야별 추천</button></div></div>
+    <div class="yseg"><button class="${y27t==="c"?"on":""}" onclick="y27t='c';render()">분야별 추천</button><button class="${y27t==="m"?"on":""}" onclick="y27t='m';render()">월별 스케줄</button></div></div>
     <div class="sitc">${y27t==="m"?months:cats}</div></div>`;
 }
 function sitCards(){
