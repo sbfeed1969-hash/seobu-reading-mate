@@ -331,6 +331,9 @@ body.nolog header+div{display:none}
 }
 @media (min-width:1024px){.tb.tlk i::after{content:" 🔒";font-size:.8em}}
 .ico .bhrt{width:46px;height:46px;display:block}@media (max-width:640px){.mt .ico .bhrt{width:30px;height:30px}}
+/* 필독서 분야 선택: 옆으로 넘기지 않고 화면 안에서 한 번에 */
+.chips.rqg{flex-wrap:wrap;overflow:visible}
+@media (max-width:640px){.chips.rqg{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.chips.rqg .chip{width:100%;padding:9px 4px;font-size:13px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .wadm{display:flex;align-items:center;justify-content:center;gap:4px 12px;flex-wrap:wrap;margin:6px 0 4px;padding-top:12px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--sub)}.wadm span{opacity:.8}.wadm button,.wadm label{font-size:11.5px;color:var(--sub);text-decoration:underline;text-underline-offset:2px;cursor:pointer;background:none;border:0;padding:2px}.wadm button:hover,.wadm label:hover{color:var(--fg)}body.guest header+div{display:none}
 .lo.lin{color:#1f3fae;border-color:#c7d2fe;background:#eef2ff}.sfoot .sin{margin-top:4px;color:#ffe680}
 @media(prefers-color-scheme:dark){.jme{background:#3a3410;color:#fff3a0}.lockb .lki{background:#232a4a}}
@@ -687,6 +690,8 @@ const BIMG={"290022":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAk
 RAW.splice(RAW.findIndex(g=>g[0]==="CEO 추천"),0,["축산",[["축산 기업 이야기",["310818682","368547690","26695830","41652502","217426658"]],["양돈",["264033225","73404408","216857607","189810607","341274762","231789522"]],["양계 (산란계·육계)",["394033243","138159462","90209927","207166","328963021","216168985","43547461"]],["축산업 이해",["282939858","299013197","210801384","294706333","394228121"]],["미래·지속가능",["327615094","394437047"]]]]);
 RAW.find(g=>g[0]==="Innovation")[1].push(["기업 전략 보고서",["316070399","373298587","403264431","27667063","626902","357051177","337834910","371785821","83421140","405423851"]]);
 const REQ=RAW.map(([g,ss])=>({g,s:ss.map(([n,ids])=>({n,ids,b:ids.map(i=>BOOKS[i].t)}))}));
+// 필독서 분야 순서 (바꾸려면 여기만): Basic → CEO 추천 → 축산 → Management → Innovation → Marketing
+{const ORD=["Basic","CEO 추천","축산","Management","Innovation","Marketing"],ix=g=>{const i=ORD.indexOf(g);return i<0?99:i};REQ.sort((a,b)=>ix(a.g)-ix(b.g))}
 // ===== 혁신 기업가 추천 도서 (인터뷰·블로그·평전 등에서 공개적으로 추천한 책 · 알라딘 확인) =====
 const INNO=[
 {n:"일론 머스크",r:"테슬라·스페이스X CEO",b:[["67581309","애플 창업자의 삶과 집념을 담은 공식 전기"],["401291344","유전자의 눈으로 진화를 다시 본 과학 고전"],["100441871","인간을 뛰어넘는 AI가 오는 경로와 위험, 통제 전략"],["331482604","분업과 시장의 원리로 근대 경제학을 연 고전"],["345347964","머스크·피터 틸 등 페이팔 창업자들의 성장 이야기"],["124682303","AI가 바꿀 일·전쟁·인류의 미래 시나리오"],["210176072","우주의 기원부터 생명·의식까지 물리학으로 풀어낸 책"],["171345378","딥러닝의 수학적 기초부터 생성 모델까지 다룬 교과서"],["89556499","초지능이 인류의 마지막 발명이 될 수 있다는 경고"],["352971814","사회가 왜 편을 가르고 극단으로 치닫는지 분석한 책"],["1386983","건물·다리·비행기가 무너지지 않는 원리를 쉽게 푼 공학 입문서"],["119663618","액체 로켓 추진제 개발의 역사를 유쾌하게 풀어낸 책"],["341965373","운명에 맞서 세상에 도전한 모험가 12인의 삶"],["274568928","인간의 선호를 배우는 안전한 AI를 제안한 책"],["543098","항공·영화 사업으로 세상을 뒤흔든 억만장자의 평전"],["17076689","러시아를 34년간 이끈 여제 예카테리나의 전기"],["32034640","제국의 몰락을 예견한 수학자의 SF 대서사"],["50527650","나폴레옹 시대 유럽의 정치·전쟁·문화를 다룬 역사서"],["54138579","'외계인은 다 어디 있나?' 페르미 역설에 대한 75가지 해답"]]},
@@ -707,13 +712,13 @@ function reqStat(){const m=myBooks();let t=0,d=0;REQ.forEach(G=>G.s.forEach(S=>S
 function req(){
   const m=myBooks(),st=reqStat(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
   return `${featured()}<div class="form rqh"><div class="gt" style="font-size:28px;font-weight:900">필독서</div><span class="hint">분야별로 읽고 독후감을 남겨보세요 · 내가 읽은 책 ${st.d}/${st.t}</span><span class="hint rqs2">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
-  <div class="chips" style="background:none;border:0;padding:0">${REQ.map((x,i)=>`<button class="chip${i===rg?" on2":""}" onclick="rg=${i};render()">${x.g}</button>`).join("")}</div>
+  <div class="chips rqg" style="background:none;border:0;padding:0">${REQ.map((x,i)=>`<button class="chip${i===rg?" on2":""}" onclick="rg=${i};render()">${x.g}</button>`).join("")}</div>
   <div class="row"><input placeholder="🔍 필독서 제목 검색" value="${esc(rqs)}" oninput="rqs=this.value;rl()"><select style="width:auto" onchange="rqf=this.value;rl()"><option value="all">전체</option><option value="un"${rqf==="un"?" selected":""}>안 읽은 책</option></select></div><div id="rl">${rlist()}</div></div>`;
 }
 function rlist(){
   const m=myBooks(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
   const all=!!(rqs||rqf==="un");
-  return G.s.map((S,si)=>`<details class="rq${all?" all":""}"${(si===0||rqs||innerWidth>=1024)?" open":""}><summary><b>${esc(S.n)}</b><span class="hint">${S.b.filter(done).length}/${S.b.length}</span></summary><div class="rbl">${S.b.map((x,k)=>{
+  return G.s.map((S,si)=>`<details class="rq${all?" all":""}"${(si===0||rqs||innerWidth>=1024)?" open":""}><summary><b>${esc(S.n)}</b><span class="hint">${S.b.length}권${S.b.filter(done).length?` · ✅ ${S.b.filter(done).length}`:""}</span></summary><div class="rbl">${S.b.map((x,k)=>{
     const id=S.ids[k],b=BOOKS[id];if((rqf==="un"&&done(x))||(rqs&&!nz(x+b.a).includes(nz(rqs))))return "";const u=esc(bookLink(id));
     return `<div class="rb"><a class="rbc" href="${u}" target="_blank" rel="noopener" aria-label="${esc(x)} 책 소개 보기"><img src="${BIMG[id]}" alt=""></a><span class="rbi"><a class="rbt" href="${u}" target="_blank" rel="noopener">${done(x)?"✅ ":""}${esc(x)}</a>${b.n?'<b class="nw">NEW</b>':""}<small class="hint">${esc(b.a)}${b.p?" · "+esc(b.p):""}${b.y?" · "+b.y:""}</small></span><span class="hint">${cnt(x)?"💬"+cnt(x):""}</span><button class="btn g" onclick="wr(${rg},${si},${k})">쓰기</button></div>`}).join("")}</div>${!all&&S.b.length>5?`<button class="rqm" onclick="rqMore(this,${S.b.length})">${S.b.length}권 모두 보기 ▼</button>`:""}</details>`).join("");
 }
