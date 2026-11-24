@@ -1128,7 +1128,7 @@ function wrb(o){try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.c
 function feed(){
   const back='<div class="rqnav fdtop"><button onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑ 처음으로</button></div>';
   setTimeout(()=>loadBest(bestCat),0);
-  if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${lockBox("feed")}${back}`;
+  if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${back}`;
   return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
 }const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
