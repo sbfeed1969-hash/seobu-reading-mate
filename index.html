@@ -924,7 +924,7 @@ function join(){const j=JOIN||{};return lgShell(`<div class="lpt"><h2>직원 등
   </form>
   <button type="button" class="gbtn sm2" onclick="logout(1)">취소하고 처음으로</button>`)}
 // 서부사료 조직 (조직이 바뀌면 여기만 고치세요) — [부문, [소속 팀…]] 또는 [부서]
-const DEPTS=[["경영진"],["부사장",["부사장","마케팅팀"]],["생산연구부문",["생산연구부문장","생산본부장","생산공무팀","연구개발팀","품질경영팀"]],["FC사업부문"],["경영관리부문",["경영관리부문장","경영기획팀","재무팀","사업지원팀","구매팀","전산팀"]],["계열화사업부문"],["운영관리"],["GMG"]];
+const DEPTS=[["경영진",["회장","사장","부사장"]],["경영관리부문",["경영관리부문(이사)","경영기획팀","재무팀","전산팀","사업지원/법무팀","구매팀"]],["사업·마케팅",["사업1팀","사업2팀","사업3팀","FC사업본부","양돈사료","계열화사업","마케팅팀"]],["생산연구부문",["생산연구부문(상무이사)","생산본부","생산공무팀","연구개발팀(R&D)","품질경영팀"]],["운영관리"],["GMG"]];
 function jdOther(){const x=$("#jdx"),o=$("#jd").value==="__etc";x.hidden=!o;if(o)x.focus()}
 function jbad(el,msg){document.querySelectorAll(".lgf .bad").forEach(e=>e.classList.remove("bad"));lerr(msg);if(el){el.classList.add("bad");el.scrollIntoView({block:"center",behavior:"smooth"});setTimeout(()=>el.focus(),250);el.addEventListener("input",()=>el.classList.remove("bad"),{once:true});el.addEventListener("change",()=>el.classList.remove("bad"),{once:true})}}
 async function joinGo(ev){if(ev)ev.preventDefault();lerr("");const n=$("#jn").value.trim(),sel=$("#jd").value,d=sel==="__etc"?$("#jdx").value.trim():sel,c=$("#lc").value.trim(),b=$("#jgo");
