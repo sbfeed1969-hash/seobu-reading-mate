@@ -360,6 +360,22 @@ body.nolog header+div{display:none}
 .sitw{margin:30px 0 8px!important}.sitw.dptw{margin-top:20px!important}
 .sith{padding:0 18px 14px!important;row-gap:6px}
 .sith .hint{flex-basis:100%;margin-top:2px}
+/* 실시간 베스트 도서 */
+.bestw{margin:30px 0 8px}.bestw .sith{padding:0 18px 10px!important}
+.bym{font-size:12px;font-weight:800;color:#fff;background:linear-gradient(90deg,#f28c4a,#e85d75);padding:3px 10px;border-radius:999px;margin-left:4px}
+.bchips{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:none!important;border:0!important;padding:0 16px 10px!important;overflow:visible!important}
+.bchips .chip{width:100%;padding:9px 4px;font-size:13px;text-align:center;white-space:nowrap}
+@media (min-width:641px){.bchips{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.bestl{list-style:none;margin:0 16px;padding:6px 14px;background:var(--panel);border-radius:20px;border:1px solid var(--line)}
+.bestl li{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)}.bestl li:last-child{border-bottom:0}
+.brk{flex:0 0 24px;text-align:center;font-weight:900;font-size:15px;color:var(--sub)}.brk.top{color:#f28c4a;font-size:17px}
+.bcv img{display:block;width:44px;height:64px;object-fit:cover;border-radius:3px;box-shadow:2px 3px 8px rgba(20,30,80,.2);background:var(--line)}
+.binfo{flex:1;min-width:0;display:grid;gap:2px}
+.bttl{color:var(--fg);font-weight:800;font-size:14.5px;line-height:1.35;text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}.bttl:hover{text-decoration:underline}
+.binfo small{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bestl .ywr{background:var(--bg);border:1px solid var(--line)}
+.bmsg{justify-content:center;color:var(--sub);font-size:13px;padding:22px 0!important}
+.fbar{flex-direction:column;align-items:stretch!important;gap:8px!important;margin-top:26px!important}.fbh b{font-size:17px}.fbar .row{padding:0!important;gap:6px}.fbar .row input{min-width:0;flex:1}
 /* 모바일 안전장치: 어떤 요소도 화면 폭을 넘지 않게 */
 html,body{overflow-x:clip}
 .ftd2>*,.ft-cur,.ft-main,.ft-info,.ft-info>div{min-width:0}.ft-info dd{overflow-wrap:anywhere;word-break:keep-all}
@@ -587,6 +603,7 @@ window.fetch=async(url,o={})=>{const p=new URL(url,location.href).pathname;if(!p
   try{
     if(p==="/api/data")return ok(await rpc("rc_data",{p_code:code}));
     if(p==="/api/books"){const t=await tok(),bh={"X-Code":encodeURIComponent(code)};if(t)bh.Authorization="Bearer "+t;const r=await _fetch(url,{headers:bh});if(r.status===401)return new Response(JSON.stringify({error:"접속 코드가 맞지 않아요."}),{status:401});return r}
+    if(p==="/api/best")return _fetch(url); // 실시간 베스트(서버 함수, 공개 정보)
     if(p==="/api/saseo")return ok({books:[],keys:{saseo:false}});
     if(p==="/api/meta")return ok({});
     if(p==="/api/like")await rpc("rc_like",{p_code:code,p_review_id:b.id,p_uid:me});
@@ -1092,14 +1109,25 @@ const DF=["fb","fa","fh","fr","fq","fsr","ft","fc"];
 function saveDraft(){try{const d={};DF.forEach(i=>{const e=$("#"+i);if(e)d[i]=e.value});d.cards=[...document.querySelectorAll("#cd textarea")].map(t=>t.value);d.cover=B.cover||"";d.isbn=B.isbn||"";localStorage.setItem("rcdraft",JSON.stringify(d))}catch(e){}}
 function restoreDraft(){try{const d=JSON.parse(localStorage.getItem("rcdraft")||"null");if(!d)return;DF.forEach(i=>{if(d[i]!=null&&$("#"+i))$("#"+i).value=d[i]});const c=$("#cd");(d.cards||[]).forEach((v,i)=>{let t=c.children[i];if(!t&&c.children.length<6){t=document.createElement("textarea");c.appendChild(t)}if(t)t.value=v});B.cover=d.cover||"";B.isbn=d.isbn||"";if(d.fb||d.fr)$("#cv").textContent="📝 임시저장된 내용을 불러왔어요"}catch(e){}}
 document.addEventListener("input",()=>{if(view==="write"){saveDraft();uiw()}});
+// ===== 실시간 베스트 도서 (알라딘 월간 베스트 · 서버 함수 /api/best) =====
+const BCATS=[["biz","경영/리더십"],["self","자기계발"],["it","IT/AI"],["hum","인문/교양"],["lit","소설/에세이"]];
+let bestCat="biz";const BEST={};
+const kstYm=()=>{const d=new Date(Date.now()+9*3600e3);return d.getUTCFullYear()+"년 "+(d.getUTCMonth()+1)+"월"};
+function bestRow(x){return `<li><span class="brk${x.rank<=3?" top":""}">${x.rank}</span><a class="bcv" href="${esc(x.link)}" target="_blank" rel="noopener" aria-label="${esc(x.t)} 책 소개 보기">${x.cover?`<img src="${esc(x.cover)}" alt="" loading="lazy">`:""}</a><div class="binfo"><a class="bttl" href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.t)}</a><small>${esc(x.a)}${x.p?" · "+esc(x.p):""}</small></div><button class="ywr" onclick='wrb(${JSON.stringify({t:x.t,a:x.a,c:x.cover}).replace(/'/g,"&#39;")})' aria-label="${esc(x.t)} 독후감 쓰기">✍️</button></li>`}
+function bestSec(){const d=BEST[bestCat];
+  return `<div class="bestw"><div class="sith"><b>📈 실시간 베스트 도서</b><span class="bym">${esc((d&&d.ym)||kstYm())} 기준</span><span class="hint">알라딘 월간 베스트 · 분야별 TOP 10</span></div>
+  <div class="chips bchips">${BCATS.map(([k,l])=>`<button class="chip${k===bestCat?" on2":""}" onclick="pickBest('${k}')">${l}</button>`).join("")}</div>
+  <ol class="bestl">${d?(d.items&&d.items.length?d.items.map(bestRow).join(""):'<li class="bmsg">지금은 베스트 목록을 불러오지 못했어요. 잠시 후 다시 열어 주세요.</li>'):'<li class="bmsg">베스트 도서를 불러오는 중…</li>'}</ol></div>`}
+const swapBest=()=>{const el=document.querySelector(".bestw");if(el)el.outerHTML=bestSec()};
+async function loadBest(k){if(BEST[k])return;try{const r=await fetch("/api/best?cat="+k);const j=await r.json();BEST[k]=j&&j.items?j:{items:[]}}catch(e){BEST[k]={items:[]}}if(view==="feed"&&k===bestCat)swapBest()}
+function pickBest(k){bestCat=k;swapBest();loadBest(k)}
+function wrb(o){try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=o.c||"";$("#fb").value=o.t;$("#fa").value=o.a||"";uiw()}
 function feed(){
-  const chips=`<div class="chips">${["전체",...CATS].map(c=>`<button class="chip${c===cat?" on2":""}" onclick="cat='${c}';render()">${c}</button>`).join("")}</div>`;
-  
   const back='<div class="rqnav fdtop"><button onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑ 처음으로</button></div>';
-  if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${lockBox("feed")}${back}`;
-  return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}`+'<div class="fbar">'+chips+`<div class="row" style="padding:10px 16px"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="fs=this.value;fl()"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>${back}`;
-}
-const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
+  setTimeout(()=>loadBest(bestCat),0);
+  if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${lockBox("feed")}${back}`;
+  return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div class="fbar"><div class="fbh"><b>💬 서부 메이트 독후감</b></div><div class="row"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="cat=this.value;fl()" aria-label="분야">${["전체",...CATS].map(c=>`<option${c===cat?" selected":""}>${c}</option>`).join("")}</select><select style="width:auto" onchange="fs=this.value;fl()" aria-label="정렬"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>${back}`;
+}const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
 function ac(e,id){e.preventDefault();const i=e.target.querySelector("input"),t=i.value.trim();if(!t)return false;i.value="";act("/api/comment",{id,text:t});return false}
 function rank(){return rtab==="y"?rankY():rankM()}
