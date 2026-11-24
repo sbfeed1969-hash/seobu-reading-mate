@@ -360,6 +360,38 @@ body.nolog header+div{display:none}
 .sitw{margin:30px 0 8px!important}.sitw.dptw{margin-top:20px!important}
 .sith{padding:0 18px 14px!important;row-gap:6px}
 .sith .hint{flex-basis:100%;margin-top:2px}
+/* 앱 시작 화면: 로고 속 책이 펼쳐지고 → 책장이 넘어가고 → 화살표·원이 떠오름 */
+#splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;overflow:hidden;
+  background:radial-gradient(120% 70% at 50% 42%,#2b4fb3 0%,#1a347f 38%,#101f57 70%,#0b1640 100%);transition:opacity .55s ease,transform .55s ease}
+#splash.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.spl-bg i{position:absolute;left:50%;top:42%;border-radius:50%;border:1px solid rgba(255,255,255,.06);transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,255,255,.035),transparent 70%)}
+.spl-bg i:nth-child(1){width:150vmax;height:150vmax}.spl-bg i:nth-child(2){width:105vmax;height:105vmax}.spl-bg i:nth-child(3){width:64vmax;height:64vmax;animation:splPulse 3s ease-in-out infinite}
+@keyframes splPulse{50%{transform:translate(-50%,-50%) scale(1.06);opacity:.6}}
+.spl-icon{position:relative;width:128px;height:128px;border-radius:32px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 12px rgba(255,255,255,.07),0 18px 50px rgba(0,0,0,.35);animation:splIn .6s cubic-bezier(.2,.9,.3,1.2) both}
+.spl-glow{position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(120,170,255,.45),transparent 65%);opacity:0;animation:splGlow 1.2s ease 1.3s forwards}
+@keyframes splGlow{50%{opacity:1}100%{opacity:.35}}
+@keyframes splIn{from{opacity:0;transform:scale(.6) translateY(16px)}}
+.spl-logo{position:relative;width:84px;height:98px;overflow:visible}
+.spl-logo *{transform-box:view-box}
+.pg{transform-origin:205px 360px;animation:splOpen .75s cubic-bezier(.3,.8,.3,1) .35s both}
+@keyframes splOpen{from{transform:scaleX(.02) scaleY(.9);opacity:.3}to{transform:none;opacity:1}}
+.flip{fill:#cfe0ff;transform-origin:205px 360px;opacity:0;animation:splFlip .5s ease-in-out both}
+.f1{animation-delay:1s}.f2{animation-delay:1.17s}.f3{animation-delay:1.34s}
+@keyframes splFlip{0%{opacity:0;transform:scaleX(1)}15%{opacity:.95}50%{transform:scaleX(0) skewY(-6deg);fill:#ffffff}85%{opacity:.9}100%{opacity:0;transform:scaleX(-1)}}
+.spl-arrow{transform-origin:205px 300px;animation:splRise .7s cubic-bezier(.2,.9,.3,1.25) 1.55s both}
+@keyframes splRise{from{opacity:0;transform:translateY(120px) scale(.5)}}
+.spl-ring{transform-origin:205px 270px;animation:splRing .7s cubic-bezier(.2,.9,.3,1.1) 1.8s both}
+@keyframes splRing{from{opacity:0;transform:scale(.55) rotate(-40deg)}}
+.spl-co{margin:30px 0 6px;font-size:15px;font-weight:800;letter-spacing:6px;color:rgba(255,255,255,.85);animation:splUp .6s ease .5s both}
+.spl-tt{position:relative;margin:0;font-size:46px;font-weight:900;letter-spacing:-1px;line-height:1.15;background:linear-gradient(135deg,#ffffff 0%,#d7e4ff 45%,#7fa6ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;animation:splUp .6s ease .65s both}
+.spl-dot{position:absolute;right:-16px;top:-2px;width:13px;height:13px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 14px #2dd4bf;animation:splPop .4s ease 2.1s both}
+@keyframes splPop{from{transform:scale(0)}60%{transform:scale(1.4)}}
+.spl-bar{display:block;width:84px;height:4px;border-radius:4px;margin:20px 0 22px;background:linear-gradient(90deg,#2dd4bf,#7fa6ff);transform-origin:center;animation:splBar .6s ease .9s both}
+@keyframes splBar{from{transform:scaleX(0)}}
+.spl-en{margin:0;font-size:13px;font-weight:800;letter-spacing:6px;color:rgba(230,238,255,.9);animation:splUp .6s ease 1s both}
+.spl-tag{margin:44px 0 0;font-size:15px;color:rgba(220,230,255,.75);animation:splUp .6s ease 1.2s both}
+@keyframes splUp{from{opacity:0;transform:translateY(12px)}}
+@media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
 /* 실시간 베스트 도서 */
 .bestw{margin:30px 0 8px}.bestw .sith{padding:0 18px 10px!important}
 .bym{font-size:12px;font-weight:800;color:#fff;background:linear-gradient(90deg,#f28c4a,#e85d75);padding:3px 10px;border-radius:999px;margin-left:4px}
@@ -542,7 +574,8 @@ body.nolog{padding-left:0}
 }
 @media (min-width:1024px){.isl{flex:0 0 calc(50% - 5px)}}
 @media (min-width:1400px){#fl{grid-template-columns:repeat(3,minmax(0,1fr))}.wrap{max-width:1360px}.sl,.isl{flex:0 0 calc(33.333% - 7px)}}
-</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="lgR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0A3190"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#00c9b7"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fc1ff"/><stop offset="1" stop-color="#4a84f0"/></linearGradient></defs></svg><div class="wrap"><header><h1 class="wm" role="link" tabindex="0" aria-label="소개 페이지로 이동" onclick="if(NAME)go('intro')" onkeydown="if(event.key==='Enter'&&NAME)go('intro')"><span class="lg"><svg viewBox="0 0 410 480" role="img" aria-label="서부 리딩 메이트 로고"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><span class="wt"><span class="w1">서부</span><b>리딩 메이트</b></span></h1><div id="nav"></div></header><div hidden></div><main id="app"></main><footer class="sbf"><div><b>관리자</b><span class="sp">|</span><a href="mailto:admin@sbfeed.co.kr" class="nl">admin@sbfeed.co.kr</a></div><div>Copyright © 2026 sbfeed.co.kr. All Rights Reserved.</div><div><a onclick="flink('terms')">이용약관</a><span class="sp">|</span><a onclick="flink('privacy')">개인정보처리방침</a><span class="sp">|</span><a onclick="flink('loc')">위치기반서비스이용약관</a></div></footer><button id="top" aria-label="맨 위로" onclick="scrollTo({top:0,behavior:'smooth'})">⌃</button></div>
+html.splashing,html.splashing body{background:#101f57!important}html.splashing body>*:not(#splash){visibility:hidden}
+</style><script>/* 앱으로 열 때 시작 화면 전까지 흰 화면이 번쩍이지 않게 */try{var q=location.search.indexOf("splash")>-1,s=(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)&&sessionStorage.getItem("spl")!=="1";if(q||s)document.documentElement.classList.add("splashing")}catch(e){}</script></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="lgR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0A3190"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#00c9b7"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fc1ff"/><stop offset="1" stop-color="#4a84f0"/></linearGradient></defs></svg><div class="wrap"><header><h1 class="wm" role="link" tabindex="0" aria-label="소개 페이지로 이동" onclick="if(NAME)go('intro')" onkeydown="if(event.key==='Enter'&&NAME)go('intro')"><span class="lg"><svg viewBox="0 0 410 480" role="img" aria-label="서부 리딩 메이트 로고"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><span class="wt"><span class="w1">서부</span><b>리딩 메이트</b></span></h1><div id="nav"></div></header><div hidden></div><main id="app"></main><footer class="sbf"><div><b>관리자</b><span class="sp">|</span><a href="mailto:admin@sbfeed.co.kr" class="nl">admin@sbfeed.co.kr</a></div><div>Copyright © 2026 sbfeed.co.kr. All Rights Reserved.</div><div><a onclick="flink('terms')">이용약관</a><span class="sp">|</span><a onclick="flink('privacy')">개인정보처리방침</a><span class="sp">|</span><a onclick="flink('loc')">위치기반서비스이용약관</a></div></footer><button id="top" aria-label="맨 위로" onclick="scrollTo({top:0,behavior:'smooth'})">⌃</button></div>
 <nav class="tabbar" id="tabbar"></nav>
 <script>
 
@@ -1209,6 +1242,34 @@ async function sub(){
   try{await api("/api/review",{book,author:$("#fa").value.trim(),cover:B.cover,isbn:B.isbn||"",quote:$("#fq").value.trim(),rating:+$("#fsr").value,tags:$("#ft").value.split(/[\s,#]+/).filter(Boolean).slice(0,6),cat:$("#fc").value,headline:$("#fh").value.trim(),review:$("#fr").value.trim(),cards});try{localStorage.removeItem("rcdraft")}catch(e){}await load(1);const mr=D.reviews.filter(r=>r.uid===NAME).sort((a,b)=>b.createdAt-a.createdAt)[0];doneId=mr?mr.id:"";view="done";render();scrollTo(0,0)}
   catch(e){if(e)alert("올리지 못했어요.")}
 }
+// ===== 앱 시작 화면 (홈 화면 앱으로 열 때 · 미리보기: 주소 뒤 ?splash=1) =====
+(function(){
+  let q=false,sa=false,seen=false;
+  try{q=new URLSearchParams(location.search).has("splash");sa=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;seen=sessionStorage.getItem("spl")==="1"}catch(e){}
+  if(!(q||(sa&&!seen)))return;
+  try{sessionStorage.setItem("spl","1")}catch(e){}
+  const d=document.createElement("div");d.id="splash";d.setAttribute("aria-hidden","true");
+  d.innerHTML=`<div class="spl-bg"><i></i><i></i><i></i></div>
+  <div class="spl-icon"><div class="spl-glow"></div><svg viewBox="0 0 410 480" class="spl-logo">
+    <g class="spl-ring"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/></g>
+    <g class="spl-arrow"><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/></g>
+    <g class="spl-book">
+      <path class="pg pg-l" d="M40 322Q123 300 205 335L205 385Q123 350 40 372Z" fill="url(#lgB)"/>
+      <path class="pg pg-r" d="M205 335Q287 300 370 322L370 372Q287 350 205 385Z" fill="url(#lgB)"/>
+      <path class="flip f1" d="M205 335Q287 306 366 324L366 362Q287 344 205 378Z"/>
+      <path class="flip f2" d="M205 335Q287 306 366 324L366 362Q287 344 205 378Z"/>
+      <path class="flip f3" d="M205 335Q287 306 366 324L366 362Q287 344 205 378Z"/>
+    </g>
+  </svg></div>
+  <p class="spl-co">서 부 사 료</p>
+  <h1 class="spl-tt">리딩 메이트<span class="spl-dot"></span></h1>
+  <span class="spl-bar"></span>
+  <p class="spl-en">SEOBU READING MATE</p>
+  <p class="spl-tag">함께 읽고, 나누고, 성장해요</p>`;
+  document.body.appendChild(d);
+  const close=()=>{if(!d.isConnected)return;document.documentElement.classList.remove("splashing");d.classList.add("out");setTimeout(()=>d.remove(),600)};
+  d.addEventListener("click",close);setTimeout(close,q?4200:2900);
+})();
 async function boot(){if(window.RC_AUTH){try{await RC_AUTH.init()}catch(e){}}load(1)}
 boot();setInterval(()=>load(),10000);addEventListener("scroll",()=>$("#top").classList.toggle("show",scrollY>600));
 </script></body></html>
