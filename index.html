@@ -477,7 +477,7 @@ async function tok(){if(!SESS)return null;if(nowS()<SESS.exp-60)return SESS.at;
     const j=await r.json().catch(()=>({}));if(!r.ok||!j.access_token){saveS(null);return null}
     saveS({at:j.access_token,rt:j.refresh_token,exp:j.expires_at||nowS()+(j.expires_in||3600)});return SESS.at}catch(e){return SESS.at}}
 const jwtNick=t=>{try{const p=JSON.parse(decodeURIComponent(escape(atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));const m=p.user_metadata||{};return m.name||m.full_name||m.nickname||m.preferred_username||m.user_name||""}catch(e){return""}};
-window.RC_AUTH={legacy:true, // 전환 기간: 접속 코드 로그인도 허용(닫으려면 false + DB rc_config legacy_code_login=off)
+window.RC_AUTH={legacy:false, // 전환 기간: 접속 코드 로그인도 허용(닫으려면 false + DB rc_config legacy_code_login=off)
   kakao(){location.href="/api/kakao"}, // 사이트 서버가 카카오 로그인(닉네임만) 후 Supabase 세션을 돌려줌
   async init(){const h=new URLSearchParams(location.hash.slice(1)),q=new URLSearchParams(location.search);
     if(h.get("access_token")){saveS({at:h.get("access_token"),rt:h.get("refresh_token"),exp:+h.get("expires_at")||nowS()+(+h.get("expires_in")||3600)});history.replaceState(null,"",location.pathname)}
@@ -814,14 +814,14 @@ const lgShell=inner=>`<div class="lgw"><aside class="lpb"><div class="lpbi">
   ${inner}
   <p class="lpfoot"><a onclick="flink('terms')">이용약관</a><span>·</span><a onclick="flink('privacy')">개인정보처리방침</a><br>© 2026 sbfeed.co.kr</p>
 </div></div>`;
-const guestBtn='<div class="lgst"><button type="button" class="gbtn" onclick="browse()">로그인 없이 둘러보기 <span>›</span></button><p>둘러보기에서는 추천 도서·필독서·소개만 볼 수 있어요</p></div>';
+const guestBtn=()=>window.RC_AUTH&&!RC_AUTH.legacy?'<button type="button" class="gbtn" onclick="browse()">로그인 없이 둘러보기 <span>›</span></button>':'<div class="lgst"><button type="button" class="gbtn" onclick="browse()">로그인 없이 둘러보기 <span>›</span></button></div>';
 function browse(){GUEST=true;NAME="";try{localStorage.setItem("g","1")}catch(e){}view="feed";render();scrollTo(0,0)}
 function toLogin(){view="login";render();scrollTo(0,0)}
 function login(){const A=window.RC_AUTH,code=!A||A.legacy;
   return lgShell(`<div class="lpt"><h2>로그인</h2><p>독후감·쓰기·메이트는 서부 구성원만 이용할 수 있어요</p></div>
-  ${A?`<button type="button" class="kbtn" onclick="RC_AUTH.kakao()">${KICON}카카오로 로그인</button><p class="khint">처음 한 번만 사내 접속 코드와 이름·부서를 등록하면 돼요</p>`:""}
+  ${A?`<button type="button" class="kbtn" onclick="RC_AUTH.kakao()">${KICON}카카오로 로그인</button>`:""}
   ${A&&code?'<details class="lcode"><summary>사내 접속 코드로 로그인</summary>':""}${code?loginForm():""}${A&&code?"</details>":""}
-  ${guestBtn}`)}
+  ${guestBtn()}`)}
 function join(){const j=JOIN||{};return lgShell(`<div class="lpt"><h2>직원 등록</h2><p>처음 한 번만 입력하면 다음부터는 카카오로 바로 들어와요</p></div>
   <div class="jme">${KICON}<span>카카오 계정${j.nick?` <b>${esc(j.nick)}</b>`:""}으로 로그인했어요</span></div>
   <form class="lgf" onsubmit="return joinGo(event)" novalidate>
