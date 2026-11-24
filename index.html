@@ -363,6 +363,8 @@ body.nolog header+div{display:none}
 /* 실시간 베스트 도서 */
 .bestw{margin:30px 0 8px}.bestw .sith{padding:0 18px 10px!important}
 .bym{font-size:12px;font-weight:800;color:#fff;background:linear-gradient(90deg,#f28c4a,#e85d75);padding:3px 10px;border-radius:999px;margin-left:4px}
+.bstores{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 16px 10px;font-size:12px;color:var(--sub)}.bstores span{font-weight:700;margin-right:2px}
+.bstores a{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font-weight:700;text-decoration:none;font-size:12px}.bstores a::after{content:" ›";color:var(--sub)}.bstores a:hover{border-color:#c7d2fe}
 .bchips{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:none!important;border:0!important;padding:0 16px 10px!important;overflow:visible!important}
 .bchips .chip{width:100%;padding:9px 4px;font-size:13px;text-align:center;white-space:nowrap}
 @media (min-width:641px){.bchips{grid-template-columns:repeat(5,minmax(0,1fr))}}
@@ -1115,7 +1117,8 @@ let bestCat="biz";const BEST={};
 const kstYm=()=>{const d=new Date(Date.now()+9*3600e3);return d.getUTCFullYear()+"년 "+(d.getUTCMonth()+1)+"월"};
 function bestRow(x){return `<li><span class="brk${x.rank<=3?" top":""}">${x.rank}</span><a class="bcv" href="${esc(x.link)}" target="_blank" rel="noopener" aria-label="${esc(x.t)} 책 소개 보기">${x.cover?`<img src="${esc(x.cover)}" alt="" loading="lazy">`:""}</a><div class="binfo"><a class="bttl" href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.t)}</a><small>${esc(x.a)}${x.p?" · "+esc(x.p):""}</small></div><button class="ywr" onclick='wrb(${JSON.stringify({t:x.t,a:x.a,c:x.cover}).replace(/'/g,"&#39;")})' aria-label="${esc(x.t)} 독후감 쓰기">✍️</button></li>`}
 function bestSec(){const d=BEST[bestCat];
-  return `<div class="bestw"><div class="sith"><b>📈 실시간 베스트 도서</b><span class="bym">${esc((d&&d.ym)||kstYm())} 기준</span><span class="hint">알라딘 월간 베스트 · 분야별 TOP 10</span></div>
+  return `<div class="bestw"><div class="sith"><b>📈 실시간 베스트 도서</b><span class="bym">${esc((d&&d.ym)||kstYm())} 기준</span><span class="hint">분야별 TOP 10 · 알라딘 월간 베스트 기준</span></div>
+  <div class="bstores"><span>서점별 월간 베스트</span><a href="https://www.aladin.co.kr/shop/common/wbest.aspx?BestType=MonthlyBest&BranchType=1" target="_blank" rel="noopener">알라딘</a><a href="https://store.kyobobook.co.kr/bestseller/online/monthly" target="_blank" rel="noopener">교보문고</a><a href="https://www.ypbooks.co.kr/book/best/month" target="_blank" rel="noopener">영풍문고</a></div>
   <div class="chips bchips">${BCATS.map(([k,l])=>`<button class="chip${k===bestCat?" on2":""}" onclick="pickBest('${k}')">${l}</button>`).join("")}</div>
   <ol class="bestl">${d?(d.items&&d.items.length?d.items.map(bestRow).join(""):'<li class="bmsg">지금은 베스트 목록을 불러오지 못했어요. 잠시 후 다시 열어 주세요.</li>'):'<li class="bmsg">베스트 도서를 불러오는 중…</li>'}</ol></div>`}
 const swapBest=()=>{const el=document.querySelector(".bestw");if(el)el.outerHTML=bestSec()};
