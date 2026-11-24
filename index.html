@@ -357,7 +357,7 @@ body.nolog header+div{display:none}
 /* 피드 여유 있게: 섹션 사이 간격·머리글 여백 */
 .sitc>.isl,.sitc>.sl,.sitc>.ym{min-width:0;max-width:100%;scroll-snap-stop:always} /* 빠르게 넘겨도 한 장씩 */
 .sitc{overscroll-behavior-x:contain}.ibl li{min-width:0}
-.sitw{margin:30px 0 8px!important}.sitw.y27{margin-top:20px!important}
+.sitw{margin:30px 0 8px!important}.sitw.dptw{margin-top:20px!important}
 .sith{padding:0 18px 14px!important;row-gap:6px}
 .sith .hint{flex-basis:100%;margin-top:2px}
 /* 모바일 안전장치: 어떤 요소도 화면 폭을 넘지 않게 */
@@ -1091,8 +1091,8 @@ function feed(){
   const chips=`<div class="chips">${["전체",...CATS].map(c=>`<button class="chip${c===cat?" on2":""}" onclick="cat='${c}';render()">${c}</button>`).join("")}</div>`;
   
   const back='<div class="rqnav fdtop"><button onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑ 처음으로</button></div>';
-  if(isGuest())return `${y27Cards()}${deptCards()}${sitCards()}${innoCards()}${lockBox("feed")}${back}`;
-  return `${y27Cards()}${deptCards()}${sitCards()}${innoCards()}`+'<div class="fbar">'+chips+`<div class="row" style="padding:10px 16px"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="fs=this.value;fl()"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>${back}`;
+  if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${lockBox("feed")}${back}`;
+  return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}`+'<div class="fbar">'+chips+`<div class="row" style="padding:10px 16px"><input placeholder="🔍 책·저자·이름·태그 검색" value="${esc(fq)}" oninput="fq=this.value;fl()"><select style="width:auto" onchange="fs=this.value;fl()"><option value="new"${fs==="new"?" selected":""}>최신순</option><option value="like"${fs==="like"?" selected":""}>공감순</option></select></div></div><div id="fl">${flist()}</div>${back}`;
 }
 const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
