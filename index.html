@@ -312,7 +312,20 @@ body.nolog header+div{display:none}
 .lockb{text-align:center;padding:30px 20px;margin:18px 16px;border-radius:22px;background:linear-gradient(180deg,var(--panel),var(--bg));border:1px dashed #c7d2fe;display:grid;gap:8px;justify-items:center}
 .lockb .lki{width:56px;height:56px;border-radius:18px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:26px}.lockb b{font-size:17px}.lockb p{margin:0 0 6px;font-size:13.5px;color:var(--sub);line-height:1.6;max-width:360px}
 .lockw{max-width:560px;margin:0 auto}.lockw .lockb{margin:10px 0}.lkgo{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.tb.tlk i::after{content:" 🔒";font-size:.8em}
+/* 모바일 하단 메뉴: 여백 확보 · 쓰기 버튼은 바 위로 띄움 · 잠금은 아이콘 옆 작은 배지 */
+@media (max-width:1023px){
+  :root{--tb:calc(60px + env(safe-area-inset-bottom,0px))!important}
+  .tabbar .tb{gap:3px;padding:8px 0 7px;position:relative}
+  .tabbar svg{width:22px;height:22px}
+  .tabbar i{font-size:10.5px;font-weight:700;letter-spacing:-.3px}
+  .tabbar .tw .plus{width:46px;height:46px;margin:-24px 0 1px;box-shadow:0 0 0 5px #0a1a5c,0 8px 18px rgba(242,140,74,.45);transition:transform .15s ease}
+  .tabbar .tw:active .plus{transform:scale(.94)}
+  .tabbar .tw .plus svg{width:22px;height:22px;stroke-width:2.4}
+  .tabbar .tw i{color:#f6b183}
+  .tb.tlk::after{content:"🔒";position:absolute;top:4px;left:calc(50% + 7px);font-size:9px;line-height:1;filter:saturate(.8)}
+  .tb.tw.tlk::after{top:-20px;left:calc(50% + 12px)}
+}
+@media (min-width:1024px){.tb.tlk i::after{content:" 🔒";font-size:.8em}}
 .ico .bhrt{width:46px;height:46px;display:block}@media (max-width:640px){.mt .ico .bhrt{width:30px;height:30px}}
 .wadm{display:flex;align-items:center;justify-content:center;gap:4px 12px;flex-wrap:wrap;margin:6px 0 4px;padding-top:12px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--sub)}.wadm span{opacity:.8}.wadm button,.wadm label{font-size:11.5px;color:var(--sub);text-decoration:underline;text-underline-offset:2px;cursor:pointer;background:none;border:0;padding:2px}.wadm button:hover,.wadm label:hover{color:var(--fg)}body.guest header+div{display:none}
 .lo.lin{color:#1f3fae;border-color:#c7d2fe;background:#eef2ff}.sfoot .sin{margin-top:4px;color:#ffe680}
