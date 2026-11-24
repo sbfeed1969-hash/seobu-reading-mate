@@ -333,6 +333,8 @@ body.nolog header+div{display:none}
 .ico .bhrt{width:46px;height:46px;display:block}@media (max-width:640px){.mt .ico .bhrt{width:30px;height:30px}}
 /* 필독서 분야 선택: 옆으로 넘기지 않고 화면 안에서 한 번에 */
 .chips.rqg{flex-wrap:wrap;overflow:visible}
+.rqnav{display:grid;gap:10px;margin-top:6px;padding:16px 14px;border-radius:20px;background:var(--panel);border:1px dashed #c7d2fe}.rqnav>b{font-size:14px}
+body.nofoot .sbf{display:none}
 @media (max-width:640px){.chips.rqg{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.chips.rqg .chip{width:100%;padding:9px 4px;font-size:13px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .wadm{display:flex;align-items:center;justify-content:center;gap:4px 12px;flex-wrap:wrap;margin:6px 0 4px;padding-top:12px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--sub)}.wadm span{opacity:.8}.wadm button,.wadm label{font-size:11.5px;color:var(--sub);text-decoration:underline;text-underline-offset:2px;cursor:pointer;background:none;border:0;padding:2px}.wadm button:hover,.wadm label:hover{color:var(--fg)}body.guest header+div{display:none}
 .lo.lin{color:#1f3fae;border-color:#c7d2fe;background:#eef2ff}.sfoot .sin{margin-top:4px;color:#ffe680}
@@ -713,9 +715,13 @@ function reqStat(){const m=myBooks();let t=0,d=0;REQ.forEach(G=>G.s.forEach(S=>S
 function req(){
   const m=myBooks(),st=reqStat(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
   return `${featured()}<div class="form rqh"><div class="gt" style="font-size:28px;font-weight:900">필독서</div><span class="hint">분야별로 읽고 독후감을 남겨보세요 · 내가 읽은 책 ${st.d}/${st.t}</span><span class="hint rqs2">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
-  <div class="chips rqg" style="background:none;border:0;padding:0">${REQ.map((x,i)=>`<button class="chip${i===rg?" on2":""}" onclick="rg=${i};render()">${x.g}</button>`).join("")}</div>
-  <div class="row"><input placeholder="🔍 필독서 제목 검색" value="${esc(rqs)}" oninput="rqs=this.value;rl()"><select style="width:auto" onchange="rqf=this.value;rl()"><option value="all">전체</option><option value="un"${rqf==="un"?" selected":""}>안 읽은 책</option></select></div><div id="rl">${rlist()}</div></div>`;
+  <div class="chips rqg" id="rqtop" style="background:none;border:0;padding:0">${rqChips()}</div>
+  <div class="row"><input placeholder="🔍 필독서 제목 검색" value="${esc(rqs)}" oninput="rqs=this.value;rl()"><select style="width:auto" onchange="rqf=this.value;rl()"><option value="all">전체</option><option value="un"${rqf==="un"?" selected":""}>안 읽은 책</option></select></div><div id="rl">${rlist()}</div>
+  <div class="rqnav"><b>📚 다른 분야 보기</b><div class="chips rqg" style="background:none;border:0;padding:0">${rqChips(1)}</div></div></div>`;
 }
+const rqChips=bottom=>REQ.map((x,i)=>`<button class="chip${i===rg?" on2":""}" onclick="pickRg(${i},${bottom?1:0})">${x.g}</button>`).join("");
+// 분야 바꾸기: 아래쪽에서 고르면 새 분야의 맨 위(분야 버튼)로 올라감
+function pickRg(i,fromBottom){rg=i;render();if(fromBottom){const t=$("#rqtop");if(t)window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-80,behavior:"smooth"})}}
 function rlist(){
   const m=myBooks(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
   const all=!!(rqs||rqf==="un");
@@ -725,7 +731,8 @@ function rlist(){
 }
 // 모바일: 분류 하나씩만 펼치고(아코디언), 모두 보기는 목록 안에서 스크롤
 function rqMore(b,n){const d=b.closest(".rq"),o=d.classList.toggle("all");b.textContent=o?"접기 ▲":n+"권 모두 보기 ▼";d.querySelector(".rbl").scrollTop=0;if(window.innerWidth<=640)window.scrollTo({top:d.getBoundingClientRect().top+window.scrollY-72,behavior:"smooth"})}
-document.addEventListener("toggle",e=>{const d=e.target;if(window.innerWidth>640||!d.matches||!d.matches("details.rq")||!d.open)return;document.querySelectorAll("details.rq[open]").forEach(x=>{if(x!==d)x.open=false});setTimeout(()=>window.scrollTo({top:d.getBoundingClientRect().top+window.scrollY-72,behavior:"smooth"}),30)},true);
+let rqTap=0;document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("details.rq>summary"))rqTap=Date.now()},true);
+document.addEventListener("toggle",e=>{const d=e.target;if(window.innerWidth>640||!d.matches||!d.matches("details.rq")||!d.open||Date.now()-rqTap>800)return;document.querySelectorAll("details.rq[open]").forEach(x=>{if(x!==d)x.open=false});setTimeout(()=>window.scrollTo({top:d.getBoundingClientRect().top+window.scrollY-72,behavior:"smooth"}),30)},true);
 const pend=new Set(),chk=new Set();
 async function fillMeta(det){
   const rows=[...det.querySelectorAll(".rb[data-t]")],need=rows.map(e=>e.dataset.t).filter(t=>(META[t]===undefined||(META[t]&&!META[t][2]))&&!pend.has(t)&&!chk.has(t));
@@ -789,7 +796,7 @@ async function load(force){
 }
 function render(){MC=mates(0);MC.best=prevBest();
   $("#nav").innerHTML=(canInstall()&&view!=="login"&&view!=="join"?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+navHtml();
-  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
+  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);
 }
 function navHtml(){const L=view==="login"||view==="join";return NAME&&!L?'<button class="lo" onclick="logout()" aria-label="로그아웃">로그아웃</button>':isGuest()&&!L?'<button class="lo lin" onclick="toLogin()">🔑 로그인</button>':""}
 let LOCK="write";
