@@ -220,6 +220,39 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
   .rq .rb .btn{padding:5px 10px}
   .rq:not(.all) .rbl>.rb:nth-child(n+6){display:none}
   .rq.all .rbl{max-height:calc(100dvh - 300px);min-height:240px;overflow-y:auto;overscroll-behavior:contain;mask-image:linear-gradient(180deg,#000 calc(100% - 24px),transparent)}
+  /* 소개: 섹션마다 한 화면 */
+  .mt .hero{min-height:0!important;padding:26px 20px 28px!important}
+  .mt .hero h2{font-size:14px!important;margin:0 0 12px!important}
+  .mt .hero .logo{margin:0 auto 10px!important}.mt .hero .logo svg{width:58px!important;height:68px!important}
+  .mt .hero .big{font-size:34px!important}.mt .hero .slg{margin:12px 0 0!important;font-size:11.5px!important;letter-spacing:4px!important}
+  .mt .jump{padding:9px 12px}
+  .mt .sec{padding:24px 16px!important}
+  .mt .sec>.gt{font-size:22px!important;margin:0 0 6px!important}
+  .mt .sec>.gt.gt2{font-size:18px!important}
+  .mt .sec p{font-size:13.5px;margin:0 0 6px}
+  .mt .ico{gap:6px!important;margin-top:14px!important;flex-wrap:nowrap!important}
+  .mt .ico div{width:auto!important;flex:1;min-width:0}
+  .mt .ico span{width:50px!important;height:50px!important;border-radius:15px!important;font-size:23px!important;margin:0 auto 5px!important}
+  .mt .ico .mdl{width:28px!important;height:28px!important}
+  .mt .ico b{font-size:11px;white-space:nowrap;letter-spacing:-.3px}
+  .mt .tiers2{margin:10px auto 6px}.mt .tc{padding:12px 6px;border-radius:16px}.mt .tc .ti2{font-size:28px}.mt .tc .ti2 .mdl{width:30px;height:30px}.mt .tc b{font-size:14.5px}
+  .mt .sup{display:grid!important;grid-template-columns:76px 1fr;grid-template-areas:"demo k" "demo h" "demo p";column-gap:14px;align-items:center;padding:10px 16px!important;text-align:left}
+  .mt .sup .k{grid-area:k;text-align:left;font-size:11.5px}
+  .mt .sup h3{grid-area:h;text-align:left;font-size:16px;margin:1px 0}
+  .mt .sup p{grid-area:p;text-align:left;font-size:12.5px;margin:0}
+  .mt .sup .demo{grid-area:demo;width:76px;height:76px;padding:4px!important;border-radius:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;font-size:32px!important;gap:2px}
+  .mt .sup .demo b{font-size:11.5px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mt .sup .demo .hint{display:none}.mt .sup .demo .bdg .mdl{width:18px;height:18px}
+  /* 메이트 카드(소개·메이트 공통) */
+  .mg3{gap:8px!important;margin:8px 0!important}
+  .mc3{padding:10px 12px!important;gap:12px!important;border-radius:18px!important}
+  .mc3 .av{flex:0 0 48px!important;width:48px!important;height:48px!important;font-size:19px!important}
+  .mc3 .av .ab{width:24px;height:24px;right:-5px;bottom:-3px;font-size:12px}.mcard .ab .mdl{width:16px;height:16px}
+  .mc3 .tx b{font-size:15px!important}.mc2{font-size:12.5px!important;margin:2px 0 4px!important}
+  .mc3 .rv{margin-top:3px!important;padding:6px 9px!important;font-size:12px!important}
+  .bestc{padding:14px 12px!important;border-radius:22px!important}.av.big{width:76px!important;height:76px!important;font-size:30px!important}.bestc .bn{font-size:17px!important}
+  .rkg{gap:8px!important}.rk{padding:9px 12px!important}
+  .rkl .empty{padding:18px 10px!important;font-size:13px}.rkr>.hint{font-size:11.5px}
+  .rkl .rk:nth-of-type(n+6){display:none}
   .rqm{display:block;width:100%;margin:6px 0 4px;padding:10px;border-radius:12px;background:var(--bg);color:var(--fg);font-weight:700;font-size:13px;border:1px solid var(--line)}
 }
 @media(prefers-color-scheme:dark){.sl{background:linear-gradient(165deg,#1b2238 0%,#202945 100%);border-color:#2a3456}.sl .sbi{color:#d6dcf0!important}.sbub{background:#eef2fc}.scnt{background:rgba(255,255,255,.08);color:#c3cbe6}}
@@ -279,7 +312,8 @@ body.nolog header+div{display:none}
 .lockb{text-align:center;padding:30px 20px;margin:18px 16px;border-radius:22px;background:linear-gradient(180deg,var(--panel),var(--bg));border:1px dashed #c7d2fe;display:grid;gap:8px;justify-items:center}
 .lockb .lki{width:56px;height:56px;border-radius:18px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:26px}.lockb b{font-size:17px}.lockb p{margin:0 0 6px;font-size:13.5px;color:var(--sub);line-height:1.6;max-width:360px}
 .lockw{max-width:560px;margin:0 auto}.lockw .lockb{margin:10px 0}.lkgo{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.tb.tlk i::after{content:" 🔒";font-size:.8em}body.guest header+div{display:none}
+.tb.tlk i::after{content:" 🔒";font-size:.8em}
+.wadm{display:flex;align-items:center;justify-content:center;gap:4px 12px;flex-wrap:wrap;margin:6px 0 4px;padding-top:12px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--sub)}.wadm span{opacity:.8}.wadm button,.wadm label{font-size:11.5px;color:var(--sub);text-decoration:underline;text-underline-offset:2px;cursor:pointer;background:none;border:0;padding:2px}.wadm button:hover,.wadm label:hover{color:var(--fg)}body.guest header+div{display:none}
 .lo.lin{color:#1f3fae;border-color:#c7d2fe;background:#eef2ff}.sfoot .sin{margin-top:4px;color:#ffe680}
 @media(prefers-color-scheme:dark){.jme{background:#3a3410;color:#fff3a0}.lockb .lki{background:#232a4a}}
 @media(prefers-color-scheme:dark){.lerr{background:#3b1220;color:#fda4af}.lgl{background:#232a4a}}
@@ -413,7 +447,7 @@ body.nolog{padding-left:0}
 }
 @media (min-width:1024px){.isl{flex:0 0 calc(50% - 5px)}}
 @media (min-width:1400px){#fl{grid-template-columns:repeat(3,minmax(0,1fr))}.wrap{max-width:1360px}.sl,.isl{flex:0 0 calc(33.333% - 7px)}}
-</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="lgR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0A3190"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#00c9b7"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fc1ff"/><stop offset="1" stop-color="#4a84f0"/></linearGradient></defs></svg><div class="wrap"><header><h1 class="wm" role="link" tabindex="0" aria-label="소개 페이지로 이동" onclick="if(NAME)go('intro')" onkeydown="if(event.key==='Enter'&&NAME)go('intro')"><span class="lg"><svg viewBox="0 0 410 480" role="img" aria-label="서부 리딩 메이트 로고"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><span class="wt"><span class="w1">서부</span><b>리딩 메이트</b></span></h1><div id="nav"></div></header><div style="background:#2b3556;color:#fff;font-size:12px;padding:6px 16px">☁️ 서부 구성원 모두와 공유돼요 · <button onclick="rcExport()" style="color:#fff;text-decoration:underline;font-size:12px">백업 저장</button> · <label style="text-decoration:underline;cursor:pointer">백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label></div><main id="app"></main><footer class="sbf"><div><b>관리자</b><span class="sp">|</span><a href="mailto:admin@sbfeed.co.kr" class="nl">admin@sbfeed.co.kr</a></div><div>Copyright © 2026 sbfeed.co.kr. All Rights Reserved.</div><div><a onclick="flink('terms')">이용약관</a><span class="sp">|</span><a onclick="flink('privacy')">개인정보처리방침</a><span class="sp">|</span><a onclick="flink('loc')">위치기반서비스이용약관</a></div></footer><button id="top" aria-label="맨 위로" onclick="scrollTo({top:0,behavior:'smooth'})">⌃</button></div>
+</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="lgR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0A3190"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#00c9b7"/><stop offset="1" stop-color="#3b5bff"/></linearGradient><linearGradient id="lgB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fc1ff"/><stop offset="1" stop-color="#4a84f0"/></linearGradient></defs></svg><div class="wrap"><header><h1 class="wm" role="link" tabindex="0" aria-label="소개 페이지로 이동" onclick="if(NAME)go('intro')" onkeydown="if(event.key==='Enter'&&NAME)go('intro')"><span class="lg"><svg viewBox="0 0 410 480" role="img" aria-label="서부 리딩 메이트 로고"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><span class="wt"><span class="w1">서부</span><b>리딩 메이트</b></span></h1><div id="nav"></div></header><div hidden></div><main id="app"></main><footer class="sbf"><div><b>관리자</b><span class="sp">|</span><a href="mailto:admin@sbfeed.co.kr" class="nl">admin@sbfeed.co.kr</a></div><div>Copyright © 2026 sbfeed.co.kr. All Rights Reserved.</div><div><a onclick="flink('terms')">이용약관</a><span class="sp">|</span><a onclick="flink('privacy')">개인정보처리방침</a><span class="sp">|</span><a onclick="flink('loc')">위치기반서비스이용약관</a></div></footer><button id="top" aria-label="맨 위로" onclick="scrollTo({top:0,behavior:'smooth'})">⌃</button></div>
 <nav class="tabbar" id="tabbar"></nav>
 <script>
 
@@ -929,6 +963,7 @@ function form(){
     <textarea id="fr" style="min-height:170px" placeholder="느낀 점, 인상 깊었던 부분을 자유롭게 적어주세요"></textarea><div class="hint" id="frc" style="text-align:right">0자</div>
     <label>해시태그</label><input id="ft" placeholder="#북스타그램 #리더십"><div class="qk">${["#북스타그램","#리더십","#성장","#적용점"].map(t=>`<button class="chip" onclick="addTag('${t}')">${t}</button>`).join("")}</div></section>
   <div class="wbar"><div style="flex:1"><div class="hint" id="wst">작성 진행도 0%</div><div class="wpb"><i id="wpi"></i></div></div><button class="btn dim" id="wsub" onclick="sub()">독후감 올리기</button></div>
+  <div class="wadm"><span>관리자용 · 독후감 자료</span><button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label></div>
   </div>`;
 }
 function uiw(){
