@@ -629,7 +629,7 @@ const ICO={
  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" style="stroke-width:2.8"/></svg>'};
 function tabbar(){
   const cur=view==="done"?"feed":view==="lock"?LOCK:view;
-  const T=[["feed","피드",ICO.feed],["req","필독서",ICO.book],["write","쓰기",ICO.plus],["rank","메이트",ICO.medal],["intro","소개",ICO.info]];
+  const T=[["intro","소개",ICO.info],["req","필독서",ICO.book],["write","쓰기",ICO.plus],["rank","메이트",ICO.medal],["feed","피드",ICO.feed]];
   return '<div class="sbrand pco" onclick="go(\'intro\')" title="소개로 이동"><span class="lgx"><svg viewBox="0 0 410 480" aria-hidden="true"><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lgR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lgA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lgB)"/></svg></span><b>서부<br><em>리딩 메이트</em></b></div>'+'<div class="tbi">'+T.map(([v,l,ic])=>v==="write"
     ?`<button class="tb tw${cur===v?" on":""}${isGuest()?" tlk":""}" onclick="go('write')" aria-label="독후감 쓰기"><span class="plus">${ic}</span><i>${l}</i></button>`
     :`<button class="tb${cur===v?" on":""}${isGuest()&&v==="rank"?" tlk":""}" onclick="go('${v}')">${ic}<i>${l}</i></button>`).join("")+'</div>'+'<div class="sfoot pco">'+(NAME?'<div class="sme">👤 <b>'+esc(NAME)+'</b>님</div><button onclick="rcExport()">💾 백업 저장</button><label>📥 백업 합치기<input type="file" accept=".json" onchange="rcImport(this)" hidden></label>':'<div class="sme">👀 둘러보는 중</div>')+(canInstall()?'<button onclick="installApp()">📲 앱 설치</button>':'')+(NAME?'<button class="sout" onclick="logout()">🚪 로그아웃</button>':'<button class="sin" onclick="toLogin()">🔑 로그인</button>')+'</div>';
