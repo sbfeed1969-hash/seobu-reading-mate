@@ -236,12 +236,16 @@ body.nolog .tabbar{display:none}body.nolog .wrap{padding-bottom:0}
   .mt .ico .mdl{width:28px!important;height:28px!important}
   .mt .ico b{font-size:11px;white-space:nowrap;letter-spacing:-.3px}
   .mt .tiers2{margin:10px auto 6px}.mt .tc{padding:12px 6px;border-radius:16px}.mt .tc .ti2{font-size:28px}.mt .tc .ti2 .mdl{width:30px;height:30px}.mt .tc b{font-size:14.5px}
-  .mt .sup{display:grid!important;grid-template-columns:76px 1fr;grid-template-areas:"demo k" "demo h" "demo p";column-gap:14px;align-items:center;padding:10px 16px!important;text-align:left}
-  .mt .sup .k{grid-area:k;text-align:left;font-size:11.5px}
-  .mt .sup h3{grid-area:h;text-align:left;font-size:16px;margin:1px 0}
-  .mt .sup p{grid-area:p;text-align:left;font-size:12.5px;margin:0}
-  .mt .sup .demo{grid-area:demo;width:76px;height:76px;padding:4px!important;border-radius:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;font-size:32px!important;gap:2px}
-  .mt .sup .demo b{font-size:11.5px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mt .sup .demo .hint{display:none}.mt .sup .demo .bdg .mdl{width:18px;height:18px}
+  /* 지원 1·2·3: 한 줄 3칸 타일 */
+  .mt{display:grid!important;grid-template-columns:8px repeat(3,minmax(0,1fr)) 8px;column-gap:8px}
+  .mt>*{grid-column:1/-1}
+  .mt>.i-rule+.sup{grid-column:2}.mt>.i-rule+.sup+.sup{grid-column:3}.mt>.i-rule+.sup+.sup+.sup{grid-column:4}
+  .mt>.sup{display:flex!important;flex-direction:column;align-items:center;text-align:center;gap:3px;padding:12px 6px 14px!important;margin:0 0 4px;background:var(--mc);border:1px solid #dbe3ff;border-radius:18px}
+  .mt .sup .demo{order:-1;width:52px;height:52px;padding:0!important;border-radius:16px;background:var(--mb)!important;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;font-size:26px!important;margin-bottom:4px;gap:0}
+  .mt .sup .demo b{font-size:10px;width:100%;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mt .sup .demo .hint{display:none}.mt .sup .demo .bdg .mdl{width:15px;height:15px}.mt .sup .demo .bdg{font-size:13px}
+  .mt .sup .k{font-size:10px;padding:1px 7px;border-radius:999px;background:#e8eeff;line-height:1.5}
+  .mt .sup h3{font-size:14px;margin:2px 0 0;white-space:nowrap;letter-spacing:-.4px}
+  .mt .sup p{font-size:11px;margin:0;line-height:1.35;color:var(--ms);word-break:keep-all}
   /* 메이트 카드(소개·메이트 공통) */
   .mg3{gap:8px!important;margin:8px 0!important}
   .mc3{padding:10px 12px!important;gap:12px!important;border-radius:18px!important}
@@ -737,9 +741,9 @@ function intro(){
   <div class="jump"><button onclick="jumpTo('mm')">${MEDAL} 월간 우수 메이트</button><button onclick="jumpTo('yy')">🏆 연간 최우수 메이트</button></div>
   <div class="sec i-about"><div class="gt">독서 파트너를 지원합니다</div><p>읽고, 나누고, 함께 성장해요</p><div class="ico"><div><span>✍️</span><b>독후감</b></div><div><span>🃏</span><b>카드뉴스</b></div><div><span><svg class="bhrt" viewBox="0 0 48 48" role="img" aria-label="공감 말풍선"><defs><linearGradient id="bhB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f1ff"/><stop offset="1" stop-color="#c9c0f2"/></linearGradient><linearGradient id="bhH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7aa8"/><stop offset="1" stop-color="#ec3c78"/></linearGradient></defs><path d="M24 6C12.4 6 4 13.2 4 22c0 4.6 2.3 8.7 6 11.6L8.6 41.5c-.2 1 .9 1.7 1.7 1.1l7.5-5.1c2 .5 4 .7 6.2.7 11.6 0 20-7.2 20-16S35.6 6 24 6z" fill="url(#bhB)" stroke="#b3a8e8" stroke-width="1.2"/><path d="M24 30.5s-8.5-5-8.5-10.6c0-2.7 2.1-4.6 4.5-4.6 1.7 0 3.1.9 4 2.3.9-1.4 2.3-2.3 4-2.3 2.4 0 4.5 1.9 4.5 4.6 0 5.6-8.5 10.6-8.5 10.6z" fill="url(#bhH)"/><ellipse cx="20.2" cy="18.6" rx="1.8" ry="1.1" fill="#fff" opacity=".7" transform="rotate(-30 20.2 18.6)"/></svg></span><b>공감, 댓글</b></div><div><span>${MEDAL}</span><b>우수 메이트</b></div><div><span>🏆</span><b>최우수 메이트</b></div></div></div>
   <div class="sec i-rule" style="padding-top:10px"><div class="gt gt2">매월 ${MATE_N}명 · 매년 1명 선정</div><div class="tiers2"><div class="tc"><span class="ti2">${MEDAL}</span><b>우수 메이트</b><small>매월 ${MATE_N}명</small><em>이달의 활동 TOP ${MATE_N}</em></div><span class="tarr">›</span><div class="tc gold"><span class="ti2">🏆</span><b>최우수 메이트</b><small>매년 1명</small><em>한 해 활동 1위</em></div></div><div class="crit"><span>📚 독후감 편수</span><i>＋</i><span>💗 받은 공감</span></div><p class="sm" style="margin-top:8px">편수가 같으면 공감이 많은 순</p></div>
-    <div class="sup"><div class="k">지원1</div><h3>이름 옆 배지</h3><p>선정되면 피드 이름 옆에 배지가 붙어요</p><div class="demo"><b>${esc(NAME||"나")}</b> <span class="bdg">${MEDAL}</span><span class="bdg">🏆</span><div class="hint" style="margin-top:6px">우수·최우수 메이트 · 1시간 전</div></div></div>
-  <div class="sup"><div class="k">지원2</div><h3>연말 시상</h3><p>최우수 메이트를 연말에 시상해요</p><div class="demo" style="font-size:52px">🏆</div></div>
-  <div class="sup"><div class="k">지원3</div><h3>베스트 독후감</h3><p>공감 1위 독후감을 매월 소개해요</p><div class="demo" style="font-size:52px">⭐</div></div>
+    <div class="sup"><div class="k">지원1</div><h3>이름 옆 배지</h3><p>피드 이름 옆에 표시</p><div class="demo"><b>${esc(NAME||"나")}</b> <span class="bdg">${MEDAL}</span><span class="bdg">🏆</span><div class="hint" style="margin-top:6px">우수·최우수 메이트 · 1시간 전</div></div></div>
+  <div class="sup"><div class="k">지원2</div><h3>연말 시상</h3><p>최우수 메이트 시상</p><div class="demo" style="font-size:52px">🏆</div></div>
+  <div class="sup"><div class="k">지원3</div><h3>베스트 독후감</h3><p>매월 공감 1위 소개</p><div class="demo" style="font-size:52px">⭐</div></div>
   ${isGuest()?'<div class="sec" id="mm"><span id="yy"></span>'+lockBox("rank")+'</div>':`<div class="sec" id="mm"><div class="gt">이달의 우수 메이트</div><div class="mnav" style="margin:6px 0 10px"><button class="rnd" onclick="im--;render()" aria-label="이전 달">‹</button><b style="font-size:18px">${M.y}년 ${M.m+1}월</b><button class="rnd" onclick="im++;render()" ${im>=0?"disabled":""} aria-label="다음 달">›</button></div><p class="sm">${M.m+1}월 활동 기준 · ${MATE_N}명 선정</p>${mcards(M)}</div><div class="sec" id="yy"><div class="gt">올해의 최우수 메이트</div><div class="mnav" style="margin:6px 0 10px"><button class="rnd" onclick="iy--;render()" aria-label="이전 해">‹</button><b style="font-size:18px">${Y.y}년</b><button class="rnd" onclick="iy++;render()" ${iy>=new Date().getFullYear()?"disabled":""} aria-label="다음 해">›</button></div><p class="sm">${Y.done?Y.y+"년 최우수 메이트":"매년 1명 · 연말 시상"}</p>${bestCard(Y)}<button class="ibn" style="margin:16px 0 0;width:100%" onclick="go('rank')">🏆 우수·최우수 메이트 보기 ›</button><button class="ibn" style="margin:10px 0 0;width:100%" onclick="go('write')">✍️ 독후감 쓰기 ›</button></div>`}
   </div>`;
 }
