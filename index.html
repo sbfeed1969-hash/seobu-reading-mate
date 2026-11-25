@@ -827,11 +827,11 @@ RAW.find(g=>g[0]==="Innovation")[1].push(["기업 전략 보고서",["316070399"
  NB.forEach(b=>{BOOKS[b.id]={t:b.t,a:b.a,p:b.p,y:b.y,n:+b.y>=2024?1:0};if(b.img)BIMG[b.id]=b.img});
  const NG={"Basic":[["마인드·스피릿",["309295168","317300995","347950596","334061481","306644424","369493586","405498729","311899364"]],["자기관리·습관",["379447436","315599742","332064288","297142104","288586319"]],["협상·커뮤니케이션",["320996225","323177262","353408353","341735122","296178169"]]],"Management":[["경영 원칙·조직",["266666941","147945799","305340138","387707497","210117981","310882382","267930208","247804372"]],["성공 기업 이야기",["93218303","247906056","323119574","360218445","238352181","238279310","264108434"]],["경제 이해",["315767092","313370501","383315006","403223918","394438909"]],["투자·금융",["369950039","364922786","359106915","396483089","294641551"]]],"Innovation":[["혁신·전략",["362359193","202292526","125468735","236159138","168699133"]],["실행·성과",["179157234","265564975","396393712","260233162"]],["미래·글로벌",["371447935","349172323","331472168","358739031","308648302","274105072","291370373","316294397"]],["기업 전략 보고서",["316070399","373298587","403264431","357051177","337834910","371785821","405423851"]]],"Marketing":[["세일즈 대표도서",["236888874","315207577","313621441","345365873","403220304","329275904","315224964","178430505"]],["마케팅 전략",["307077764","187333547","339153531","270082972","349972030","267858922"]],["브랜드",["319598717","243956448","169019534","187489005","269007580"]],["광고·콘텐츠",["303136144","287110908","327084357","295050957"]]]};
  for(const g in NG){const i=RAW.findIndex(x=>x[0]===g);if(i>=0)RAW[i][1]=NG[g]}
- const mi=RAW.findIndex(x=>x[0]==="Marketing");if(mi>=0)RAW[mi][0]="Sales/MKT"}
+ const mi=RAW.findIndex(x=>x[0]==="Marketing");if(mi>=0)RAW[mi][0]="Sales/MKT";const ci=RAW.findIndex(x=>x[0]==="CEO 추천");if(ci>=0)RAW[ci][0]="신규입사자 필독서"}
 // ===== 재구성 끝 =====
 const REQ=RAW.map(([g,ss])=>({g,s:ss.map(([n,ids])=>({n,ids,b:ids.map(i=>BOOKS[i].t)}))}));
-// 필독서 분야 순서 (바꾸려면 여기만): Basic → CEO 추천 → 축산 → Management → Innovation → Sales/MKT
-{const ORD=["Basic","CEO 추천","축산","Management","Innovation","Sales/MKT"],ix=g=>{const i=ORD.indexOf(g);return i<0?99:i};REQ.sort((a,b)=>ix(a.g)-ix(b.g));
+// 필독서 분야 순서 (바꾸려면 여기만): Basic → 신규입사자 필독서 → 축산 → Management → Innovation → Sales/MKT
+{const ORD=["Basic","신규입사자 필독서","축산","Management","Innovation","Sales/MKT"],ix=g=>{const i=ORD.indexOf(g);return i<0?99:i};REQ.sort((a,b)=>ix(a.g)-ix(b.g));
  const L=REQ.find(G=>G.g==="축산");if(L){const k=L.s.findIndex(S=>S.n==="축산 기업 이야기");if(k>=0)L.s.push(L.s.splice(k,1)[0])}} // 축산 기업 이야기는 맨 아래
 // ===== 혁신 기업가 추천 도서 (인터뷰·블로그·평전 등에서 공개적으로 추천한 책 · 알라딘 확인) =====
 const INNO=[
@@ -845,14 +845,14 @@ const INNO=[
 let rg=0,rqs="",rqf="all";
 const bookLink=id=>"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId="+id;
 // CEO 추천도서 (쓰기 화면의 👔 CEO 추천 목록에도 쓰여요)
-const REC=((REQ.find(G=>G.g==="CEO 추천")||{s:[]}).s[0]||{ids:[]}).ids.map(i=>[BOOKS[i].t,BOOKS[i].a,BOOKS[i].p,i]);
+const REC=((REQ.find(G=>G.g==="신규입사자 필독서")||{s:[]}).s[0]||{ids:[]}).ids.map(i=>[BOOKS[i].t,BOOKS[i].a,BOOKS[i].p,i]);
 const META={};Object.keys(BOOKS).forEach(i=>{const b=BOOKS[i];if(!META[b.t])META[b.t]=[b.a,b.p,1]});
 function mt(m){return m[0]+(m[1]?" · "+m[1]:"")}const nz=s=>String(s).replace(/[\s·~'’"()\[\]?!.\-]/g,"").toLowerCase();
 const myBooks=()=>new Set(D.reviews.filter(r=>r.uid===NAME).map(r=>nz(r.book)));
 function reqStat(){const m=myBooks();let t=0,d=0;REQ.forEach(G=>G.s.forEach(S=>S.b.forEach(x=>{t++;if(m.has(nz(x)))d++})));return{t,d}}
 function req(){
   const m=myBooks(),st=reqStat(),G=REQ[rg],done=x=>m.has(nz(x)),cnt=x=>D.reviews.filter(r=>nz(r.book)===nz(x)).length;
-  return `${featured()}<div class="form rqh"><div class="gt" style="font-size:28px;font-weight:900">서부 필독서</div><span class="hint">분야별로 읽고 독후감을 남겨보세요 · 내가 읽은 책 ${st.d}/${st.t}</span><span class="hint rqs2">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
+  return `${featured()}<div class="form rqh"><div class="gt" style="font-size:28px;font-weight:900">서부 필독서</div><span class="hint">서부인이라면 반드시 읽어야 할 CEO추천 필독서</span><span class="hint rqs2">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
   <div class="chips rqg" id="rqtop" style="background:none;border:0;padding:0">${rqChips()}</div>
   <div id="rl">${rlist()}</div>
   <div class="rqnav"><button onclick="toRqTop()">↑ 처음으로 · 분야 선택</button></div></div>`;
@@ -885,7 +885,7 @@ async function fillMeta(det){
   }
 }
 document.addEventListener("toggle",e=>{const d=e.target;if(d.matches&&d.matches("details.rq")&&d.open)fillMeta(d)},true);
-function wr(g,s,k){const S=REQ[g].s[s],t=S.b[k];try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=BIMG[S.ids[k]]||"";$("#fb").value=t;if(META[t])$("#fa").value=META[t][0];$("#fc").value=["Basic","CEO 추천"].includes(REQ[g].g)?"자기계발":"경영/리더십";uiw()}
+function wr(g,s,k){const S=REQ[g].s[s],t=S.b[k];try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.cover=BIMG[S.ids[k]]||"";$("#fb").value=t;if(META[t])$("#fa").value=META[t][0];$("#fc").value=["Basic","신규입사자 필독서"].includes(REQ[g].g)?"자기계발":"경영/리더십";uiw()}
 function intro(){
   const M=mates(im),Y=yearInfo(iy);
   return `<div class="mt">
