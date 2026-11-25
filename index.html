@@ -392,6 +392,22 @@ body.nolog header+div{display:none}
 .spl-tag{margin:44px 0 0;font-size:15px;color:rgba(220,230,255,.75);animation:splUp .6s ease 1.2s both}
 @keyframes splUp{from{opacity:0;transform:translateY(12px)}}
 @media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
+/* 우수 독후감 카드뉴스 (직원 전용) */
+.sitw.cnw{margin-top:20px!important}.cnload{margin:20px 16px 0;padding:18px;border-radius:18px;background:var(--panel);border:1px dashed var(--line);text-align:center;font-size:13px;color:var(--sub)}
+.cnc{position:relative;flex:0 0 100%;max-width:100%;min-width:0;scroll-snap-align:center;scroll-snap-stop:always;padding:0;border:0;border-radius:20px;overflow:hidden;background:#f2ede3;box-shadow:0 6px 18px rgba(20,30,80,.12);cursor:zoom-in}
+.cnc img{display:block;width:100%;aspect-ratio:1080/1350;object-fit:cover}
+.cnc span{position:absolute;right:12px;bottom:12px;padding:3px 10px;border-radius:999px;background:rgba(20,26,50,.65);color:#fff;font-size:12px;font-weight:700}
+@media (min-width:641px){.cnc{flex:0 0 calc(50% - 5px)}}@media (min-width:1024px){.cnc{flex:0 0 calc(33.333% - 7px)}}
+.cnv{position:fixed;inset:0;z-index:9000;background:rgba(10,14,30,.96);display:flex;flex-direction:column;color:#fff}
+.cnvh{display:flex;align-items:center;gap:8px;padding:12px 12px 10px;padding-top:max(12px,env(safe-area-inset-top))}.cnvh b{flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.cnvn{font-size:13px;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.12)}
+.cnvz,.cnvx{flex:0 0 auto;height:36px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-weight:700;font-size:13px;border:0}.cnvx{width:36px;padding:0;font-size:16px}
+.cnvs{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior:contain}.cnvs::-webkit-scrollbar{display:none}
+.cnvp{flex:0 0 100%;min-width:0;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;scroll-snap-stop:always;padding:8px;overflow:auto;touch-action:pan-x pan-y pinch-zoom}
+.cnvp img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
+.cnvp[hidden]{display:none!important}.cnv.zoom .cnvs{scroll-snap-type:none}.cnv.zoom .cnvp{align-items:flex-start;justify-content:flex-start}.cnv.zoom .cnvp img{max-width:none;max-height:none;width:220%;border-radius:0}
+@media (min-width:1024px){.cnv.zoom .cnvp img{width:1080px}}
+.cnvf{text-align:center;font-size:12px;opacity:.6;padding:8px 0 max(10px,env(safe-area-inset-bottom))}
 /* 실시간 베스트 도서 */
 .bestw{margin:30px 0 8px}.bestw .sith{padding:0 18px 10px!important}
 .bym{font-size:12px;font-weight:800;color:#fff;background:linear-gradient(90deg,#f28c4a,#e85d75);padding:3px 10px;border-radius:999px;margin-left:4px}
@@ -640,6 +656,7 @@ window.fetch=async(url,o={})=>{const p=new URL(url,location.href).pathname;if(!p
     if(p==="/api/data")return ok(await rpc("rc_data",{p_code:code}));
     if(p==="/api/books"){const t=await tok(),bh={"X-Code":encodeURIComponent(code)};if(t)bh.Authorization="Bearer "+t;const r=await _fetch(url,{headers:bh});if(r.status===401)return new Response(JSON.stringify({error:"접속 코드가 맞지 않아요."}),{status:401});return r}
     if(p==="/api/best")return _fetch(url); // 실시간 베스트(서버 함수, 공개 정보)
+    if(p==="/api/cards")return ok(await rpc("rc_cards",{p_code:code})); // 우수 독후감 카드뉴스(직원 전용)
     if(p==="/api/saseo")return ok({books:[],keys:{saseo:false}});
     if(p==="/api/meta")return ok({});
     if(p==="/api/like")await rpc("rc_like",{p_code:code,p_review_id:b.id,p_uid:me});
@@ -947,7 +964,7 @@ function installGuide(){
 }
 function logout(quiet){if(!quiet&&!confirm("로그아웃할까요?\n이 기기에 저장된 로그인 정보가 지워져요."))return;
   if(window.RC_AUTH)RC_AUTH.signOut();
-  NAME="";CODE="";GUEST=false;KAKAO=false;JOIN=null;try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("g");localStorage.removeItem("rcdraft")}catch(e){}
+  NAME="";CODE="";GUEST=false;KAKAO=false;JOIN=null;CN=null;try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("g");localStorage.removeItem("rcdraft")}catch(e){}
   D={reviews:[],likes:[],comments:[]};open={};openC={};view="login";render();scrollTo(0,0);setTimeout(()=>{const i=$("#ln");if(i)i.focus()},50)}
 function pwToggle(b){const i=$("#lc");i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"보기":"숨기기";b.setAttribute("aria-label",i.type==="password"?"접속 코드 보기":"접속 코드 숨기기");i.focus()}
 const LOGIN_HERO='<svg viewBox="0 0 410 480" aria-hidden="true"><defs><linearGradient id="lhR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bcd0ff"/></linearGradient><linearGradient id="lhA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#c4b5fd"/></linearGradient><linearGradient id="lhB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6f0ff"/><stop offset="1" stop-color="#a9c6ff"/></linearGradient></defs><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lhR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lhA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lhB)"/></svg>';
@@ -1145,6 +1162,21 @@ const DF=["fb","fa","fh","fr","fq","fsr","ft","fc"];
 function saveDraft(){try{const d={};DF.forEach(i=>{const e=$("#"+i);if(e)d[i]=e.value});d.cards=[...document.querySelectorAll("#cd textarea")].map(t=>t.value);d.cover=B.cover||"";d.isbn=B.isbn||"";localStorage.setItem("rcdraft",JSON.stringify(d))}catch(e){}}
 function restoreDraft(){try{const d=JSON.parse(localStorage.getItem("rcdraft")||"null");if(!d)return;DF.forEach(i=>{if(d[i]!=null&&$("#"+i))$("#"+i).value=d[i]});const c=$("#cd");(d.cards||[]).forEach((v,i)=>{let t=c.children[i];if(!t&&c.children.length<6){t=document.createElement("textarea");c.appendChild(t)}if(t)t.value=v});B.cover=d.cover||"";B.isbn=d.isbn||"";if(d.fb||d.fr)$("#cv").textContent="📝 임시저장된 내용을 불러왔어요"}catch(e){}}
 document.addEventListener("input",()=>{if(view==="write"){saveDraft();uiw()}});
+// ===== 우수 독후감 카드뉴스 (직원 전용 · 서버 rc_cards에서 로그인 직원에게만 전달) =====
+let CN=null;
+async function loadCards(){if(CN!==null||!NAME)return;CN=[];try{const j=await api("/api/cards");CN=Array.isArray(j)?j:[]}catch(e){CN=[]}if(view==="feed"){const el=document.querySelector(".cnw");if(el)el.outerHTML=cnSec()}}
+function cnSec(){if(!NAME)return "";if(CN===null){setTimeout(loadCards,0);return '<div class="cnw"><div class="cnload">🏆 우수 독후감 카드뉴스를 불러오는 중…</div></div>'}
+  if(!CN.length)return '<div class="cnw"></div>';
+  return CN.map((S,si)=>`<div class="sitw cnw"><div class="sith"><b>🏆 우수 독후감 카드뉴스</b><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전">‹</button><button onclick="cnav(this,1)" aria-label="다음">›</button></span><span class="hint">${esc(S.set_title)} · 카드를 누르면 크게 볼 수 있어요</span></div><div class="sitc">${S.cards.map((c,ci)=>`<button class="cnc" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><img src="${c.img}" alt="${esc(c.title)}" loading="lazy"><span>${ci+1} / ${S.cards.length}</span></button>`).join("")}</div></div>`).join("")}
+function cnOpen(si,ci){const S=CN[si];if(!S)return;const m=document.createElement("div");m.className="cnv";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<div class="cnvh"><b>${esc(S.set_title)}</b><span class="cnvn">${ci+1} / ${S.cards.length}</span><button class="cnvz" aria-label="확대">🔍 확대</button><button class="cnvx" aria-label="닫기">✕</button></div><div class="cnvs">${S.cards.map(c=>`<div class="cnvp"><img src="${c.img}" alt="${esc(c.title)}"></div>`).join("")}</div><div class="cnvf">옆으로 넘기기 · 두 손가락으로 확대</div>`;
+  document.body.appendChild(m);document.body.style.overflow="hidden";const sc=m.querySelector(".cnvs"),n=m.querySelector(".cnvn");
+  let cur=ci;const go2=i=>{const p=sc.children[i];if(p)sc.scrollTo({left:p.offsetLeft,behavior:"instant"})};
+  requestAnimationFrame(()=>go2(ci));setTimeout(()=>go2(ci),80);
+  sc.addEventListener("scroll",()=>{if(m.classList.contains("zoom"))return;cur=Math.round(sc.scrollLeft/sc.clientWidth);n.textContent=(cur+1)+" / "+S.cards.length},{passive:true});
+  const close=()=>{m.remove();document.body.style.overflow="";document.removeEventListener("keydown",kd)},kd=e=>{if(e.key==="Escape")close()};
+  m.querySelector(".cnvx").onclick=close;document.addEventListener("keydown",kd);
+  m.querySelector(".cnvz").onclick=e=>{const i=cur;const z=m.classList.toggle("zoom");e.target.textContent=z?"↩ 원래대로":"🔍 확대";const p=sc.children[i];if(z){[...sc.children].forEach((c,j)=>c.hidden=j!==i);sc.scrollLeft=0;p.scrollTop=0;p.scrollLeft=0}else{[...sc.children].forEach(c=>c.hidden=false);go2(i);n.textContent=(i+1)+" / "+S.cards.length}}}
 // ===== 실시간 베스트 도서 (알라딘 월간 베스트 · 서버 함수 /api/best) =====
 const BCATS=[["biz","경영/리더십"],["self","자기계발"],["it","IT/AI"],["hum","인문/교양"],["lit","소설/에세이"]];
 let bestCat="biz";const BEST={};
@@ -1162,7 +1194,7 @@ function feed(){
   const back='<div class="rqnav fdtop"><button onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑ 처음으로</button></div>';
   setTimeout(()=>loadBest(bestCat),0);
   if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${back}`;
-  return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
+  return `${cnSec()}${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
 }const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
 function ac(e,id){e.preventDefault();const i=e.target.querySelector("input"),t=i.value.trim();if(!t)return false;i.value="";act("/api/comment",{id,text:t});return false}
