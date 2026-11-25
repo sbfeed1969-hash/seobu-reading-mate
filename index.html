@@ -930,9 +930,9 @@ async function load(force){
 // 다시 그릴 때 옆으로 넘기던 카드 위치·'모두 보기' 펼침 상태를 그대로 유지
 function keepUI(){const s={};document.querySelectorAll("#app .sitw").forEach((w,i)=>{const c=w.querySelector(".sitc");const k=w.className+"#"+i;s[k]={x:c?c.scrollLeft:0,open:[...w.querySelectorAll(".isl")].map(e=>e.classList.contains("open"))}});return s}
 function restoreUI(s){document.querySelectorAll("#app .sitw").forEach((w,i)=>{const v=s[w.className+"#"+i];if(!v)return;w.querySelectorAll(".isl").forEach((e,j)=>{if(v.open[j]){e.classList.add("open");const b=e.querySelector(".imore");if(b)b.textContent="접기 ▲"}});const c=w.querySelector(".sitc");if(c&&v.x){c.style.scrollSnapType="none";c.scrollLeft=v.x;requestAnimationFrame(()=>{c.style.scrollSnapType=""})}})}
-function render(){const ui=view==="feed"?keepUI():null;MC=mates(0);MC.best=prevBest();
+function render(){const ui=(view==="feed"||view==="rank")?keepUI():null;MC=mates(0);MC.best=prevBest();
   $("#nav").innerHTML=(canInstall()&&view!=="login"&&view!=="join"?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+navHtml();
-  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);if(ui&&view==="feed")restoreUI(ui);
+  document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);if(ui&&(view==="feed"||view==="rank"))restoreUI(ui);
 }
 function navHtml(){const L=view==="login"||view==="join";return NAME&&!L?'<button class="lo" onclick="logout()" aria-label="로그아웃">로그아웃</button>':isGuest()&&!L?'<button class="lo lin" onclick="toLogin()">🔑 로그인</button>':""}
 let LOCK="write";
@@ -1163,7 +1163,7 @@ function restoreDraft(){try{const d=JSON.parse(localStorage.getItem("rcdraft")||
 document.addEventListener("input",()=>{if(view==="write"){saveDraft();uiw()}});
 // ===== 우수 독후감 카드뉴스 (직원 전용 · 서버 rc_cards에서 로그인 직원에게만 전달) =====
 let CN=null;
-async function loadCards(){if(CN!==null||!NAME)return;CN=[];try{const j=await api("/api/cards");CN=Array.isArray(j)?j:[]}catch(e){CN=[]}if(view==="feed"){const el=document.querySelector(".cnw");if(el)el.outerHTML=cnSec()}}
+async function loadCards(){if(CN!==null||!NAME)return;CN=[];try{const j=await api("/api/cards");CN=Array.isArray(j)?j:[]}catch(e){CN=[]}if(view==="feed"||view==="rank"){const el=document.querySelector(".cnw");if(el)el.outerHTML=cnSec()}}
 function cnSec(){if(!NAME)return "";if(CN===null){setTimeout(loadCards,0);return '<div class="cnw"><div class="cnload">🏆 우수 독후감 카드뉴스를 불러오는 중…</div></div>'}
   if(!CN.length)return '<div class="cnw"></div>';
   return CN.map((S,si)=>`<div class="sitw cnw"><div class="sith"><b>🏆 우수 독후감 카드뉴스</b><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전">‹</button><button onclick="cnav(this,1)" aria-label="다음">›</button></span><span class="hint">${esc(S.set_title)} · 카드를 누르면 크게 볼 수 있어요</span></div><div class="sitc">${S.cards.map((c,ci)=>`<button class="cnc" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><img src="${c.img}" alt="${esc(c.title)}" loading="lazy"><span>${ci+1} / ${S.cards.length}</span></button>`).join("")}</div></div>`).join("")}
@@ -1193,11 +1193,11 @@ function feed(){
   const back='<div class="rqnav fdtop"><button onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑ 처음으로</button></div>';
   setTimeout(()=>loadBest(bestCat),0);
   if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${back}`;
-  return `${cnSec()}${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
+  return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
 }const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
 function ac(e,id){e.preventDefault();const i=e.target.querySelector("input"),t=i.value.trim();if(!t)return false;i.value="";act("/api/comment",{id,text:t});return false}
-function rank(){return rtab==="y"?rankY():rankM()}
+function rank(){return cnSec()+(rtab==="y"?rankY():rankM())}
 function rankM(){
   const M=mates(rm),t0=new Date(),n=new Date(t0.getFullYear(),t0.getMonth()+rm,1),y=n.getFullYear(),m=n.getMonth(),s={};
   const MR=D.reviews.filter(r=>{const d=new Date(r.createdAt);return d.getFullYear()===y&&d.getMonth()===m}),lc=r=>D.likes.filter(l=>l.reviewId===r.id).length;
