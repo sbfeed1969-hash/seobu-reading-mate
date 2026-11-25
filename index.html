@@ -1173,7 +1173,11 @@ document.addEventListener("input",()=>{if(view==="write"){saveDraft();uiw()}});
 let CN=null;
 async function loadCards(){if(CN!==null||!NAME)return;CN=[];try{const j=await api("/api/cards");CN=Array.isArray(j)?j:[]}catch(e){CN=[]}if(view==="feed"||view==="rank"){const el=document.querySelector(".cnw");if(el)el.outerHTML=cnSec()}}
 const cnFont=()=>{if(document.getElementById("cnfont"))return;const l=document.createElement("link");l.id="cnfont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Myeongjo:wght@700;800&display=swap";document.head.appendChild(l)};
-function cnSec(){if(!NAME)return "";if(CN&&CN.length)cnFont();if(CN===null){setTimeout(loadCards,0);return '<div class="cnw"><div class="cnload">🏆 우수 독후감 카드뉴스를 불러오는 중…</div></div>'}
+// 목록 카드: 한 장이 휴대폰 한 화면(헤더·제목·하단 메뉴 제외)에 들어오도록 카드마다 자동 축소
+function fitCards(){const tb=document.querySelector(".tabbar"),hd=document.querySelector("header");const avail=innerHeight-(hd?hd.offsetHeight:56)-(innerWidth<1024&&tb?tb.offsetHeight:0)-120;
+  document.querySelectorAll(".cnw .cnc.cnh .cnhb").forEach(b=>{b.style.zoom=1;b.style.width="";const h=b.offsetHeight;const z=Math.max(.88,Math.min(1,avail/h));b.style.zoom=z.toFixed(3);b.style.width=(100/z).toFixed(2)+"%"})}
+addEventListener("resize",()=>{if(document.querySelector(".cnw .cnh"))fitCards()});
+function cnSec(){if(!NAME)return "";if(CN&&CN.length){cnFont();setTimeout(fitCards,0);setTimeout(fitCards,600)}if(CN===null){setTimeout(loadCards,0);return '<div class="cnw"><div class="cnload">🏆 우수 독후감 카드뉴스를 불러오는 중…</div></div>'}
   if(!CN.length)return '<div class="cnw"></div>';
   return CN.map((S,si)=>`<div class="sitw cnw"><div class="sith"><b>🏆 우수 독후감 카드뉴스</b><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전">‹</button><button onclick="cnav(this,1)" aria-label="다음">›</button></span><span class="hint">${esc(S.set_title)} · 카드를 누르면 크게 볼 수 있어요</span></div><div class="sitc">${S.cards.map((c,ci)=>`${c.html?`<div class="cnc cnh" role="button" tabindex="0" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><div class="cnhb">${c.html}</div></div>`:`<button class="cnc" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><img src="${c.img}" alt="${esc(c.title)}" loading="lazy"><span>${ci+1} / ${S.cards.length}</span></button>`}`).join("")}</div></div>`).join("")}
 function cnOpen(si,ci){const S=CN[si];if(!S)return;const m=document.createElement("div");m.className="cnv";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
