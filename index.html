@@ -855,7 +855,7 @@ function req(){
   return `${featured()}<div class="form rqh"><div class="gt" style="font-size:28px;font-weight:900">서부 필독서</div><span class="hint">서부인이라면 반드시 읽어야 할 CEO추천 필독서</span><span class="hint rqs2">제목이나 표지를 누르면 알라딘 책 소개가 열려요 · <b class="nw">NEW</b> 최근 인기·추천 도서</span><div style="height:8px;background:var(--line);border-radius:8px"><div style="height:8px;width:${st.t?Math.round(st.d/st.t*100):0}%;background:linear-gradient(90deg,#8b5cf6,#3b82f6);border-radius:8px"></div></div>
   <div class="chips rqg" id="rqtop" style="background:none;border:0;padding:0">${rqChips()}</div>
   <div id="rl">${rlist()}</div>
-  <div class="rqnav"><button onclick="toRqTop()">↑ 처음으로 · 분야 선택</button></div></div>`;
+  <div class="rqnav"><button onclick="toRqTop()">↑ 처음으로 · 분야 선택</button></div></div>${deptCards()}`;
 }
 const rqChips=bottom=>REQ.map((x,i)=>`<button class="chip${i===rg?" on2":""}" onclick="pickRg(${i},${bottom?1:0})">${x.g}</button>`).join("");
 // 분야 바꾸기: 아래쪽에서 고르면 새 분야의 맨 위(분야 버튼)로 올라감
@@ -938,7 +938,7 @@ async function load(force){
 // 다시 그릴 때 옆으로 넘기던 카드 위치·'모두 보기' 펼침 상태를 그대로 유지
 function keepUI(){const s={};document.querySelectorAll("#app .sitw").forEach((w,i)=>{const c=w.querySelector(".sitc");const k=w.className+"#"+i;s[k]={x:c?c.scrollLeft:0,open:[...w.querySelectorAll(".isl")].map(e=>e.classList.contains("open"))}});return s}
 function restoreUI(s){document.querySelectorAll("#app .sitw").forEach((w,i)=>{const v=s[w.className+"#"+i];if(!v)return;w.querySelectorAll(".isl").forEach((e,j)=>{if(v.open[j]){e.classList.add("open");const b=e.querySelector(".imore");if(b)b.textContent="접기 ▲"}});const c=w.querySelector(".sitc");if(c&&v.x){c.style.scrollSnapType="none";c.scrollLeft=v.x;requestAnimationFrame(()=>{c.style.scrollSnapType=""})}})}
-function render(){const ui=(view==="feed"||view==="rank")?keepUI():null;MC=mates(0);MC.best=prevBest();
+function render(){const ui=(view==="feed"||view==="rank"||view==="req")?keepUI():null;MC=mates(0);MC.best=prevBest();
   $("#nav").innerHTML=(canInstall()&&view!=="login"&&view!=="join"?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+navHtml();
   document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);if(ui&&(view==="feed"||view==="rank"))restoreUI(ui);
 }
@@ -1104,6 +1104,8 @@ const Y27C=[["인문·교양",["사피엔스","총, 균, 쇠","코스모스","�
  ["인간관계",["말투만 바꿨을 뿐인데","인간관계론","육일약국 갑시다","세네카","신경 끄기의 기술","렛뎀이론"]],
  ["브랜딩",["오늘부터 나는 브랜드가 되기로 했다","백만장자 메신저","무기가 되는 스토리","브랜드가 되어 간다는 것","픽사 스토리텔링","사업의 철학"]]];
 // 월별: [테마, [[주차, 분야, 제목, 저자, 벽돌책?], ...]]
+// 서부 필독서의 Management·Innovation·Sales/MKT는 피드 분야별 추천으로 이동(소분류마다 카드 1장)
+{const MV=["Management","Innovation","Sales/MKT"];MV.forEach(g=>{const G=REQ.find(x=>x.g===g);if(G)G.s.forEach(S=>Y27C.push([g+" · "+S.n,S.b]))});for(let i=REQ.length-1;i>=0;i--)if(MV.includes(REQ[i].g))REQ.splice(i,1)}
 const Y27M=[["새해, 이번엔 진짜 바뀌는 해",[["1주차","고전 문학","연금술사","파울로 코엘료"],["2주차","인문·철학","명상록","마르쿠스 아우렐리우스"],["3주차","자기계발","역행자","자청"],["4주차","찐 독서러 PICK","스토너","존 윌리엄스"]]],
  ["짧은 달, 얇아서 하루면 끝",[["1주차","고전 문학","노인과 바다","어니스트 헤밍웨이"],["2주차","인문·철학","소크라테스의 변명","플라톤"],["3주차","자기계발","누가 내 치즈를 옮겼을까?","스펜서 존슨"],["4주차","찐 독서러 PICK","모순","양귀자"]]],
  ["새 학기, 뇌를 깨우는 책",[["1주차","고전 문학","데미안","헤르만 헤세"],["2~3주차","인문·과학","사피엔스","유발 하라리",1],["4주차","자기계발","아주 작은 습관의 힘","제임스 클리어"]]],
@@ -1205,8 +1207,8 @@ function wrb(o){try{localStorage.removeItem("rcdraft")}catch(e){}go("write");B.c
 function feed(){
   const back='<div class="rqnav fdtop"><button onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑ 처음으로</button></div>';
   setTimeout(()=>loadBest(bestCat),0);
-  if(isGuest())return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${back}`;
-  return `${deptCards()}${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
+  if(isGuest())return `${y27Cards()}${sitCards()}${innoCards()}${bestSec()}${back}`;
+  return `${y27Cards()}${sitCards()}${innoCards()}${bestSec()}`+`<div id="fl">${flist()}</div>${back}`;
 }const act=async(p,b)=>{try{await api(p,b);await load(1)}catch(e){if(e)alert(e.message||"처리하지 못했어요.")}};
 const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()},lk=id=>act("/api/like",{id}),del=id=>confirm("이 독후감을 삭제할까요?")&&act("/api/delete",{id});
 function ac(e,id){e.preventDefault();const i=e.target.querySelector("input"),t=i.value.trim();if(!t)return false;i.value="";act("/api/comment",{id,text:t});return false}
