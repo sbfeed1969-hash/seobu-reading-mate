@@ -417,6 +417,10 @@ body.nolog header+div{display:none}
 .cnv .cnvp:has(.cnhb){align-items:flex-start;overflow-y:auto}
 .cnv.zoom .cnvp .cnhb{zoom:1.25;max-width:none}
 .cnvp[hidden]{display:none!important}.cnv.zoom .cnvs{scroll-snap-type:none}.cnv.zoom .cnvp{align-items:flex-start;justify-content:flex-start}.cnv.zoom .cnvp img{max-width:none;max-height:none;width:220%;border-radius:0}
+/* 우수 독후감 모아보기 목록 · PDF 바로보기 */
+.cnl{margin:14px 16px 0;padding:14px 14px 6px;border-radius:18px;background:var(--panel);border:1px solid var(--line)}.cnlh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin-bottom:6px}.cnlh b{font-size:16px}.cnl ul{list-style:none;margin:0;padding:0}.cnl li{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}.cnl li:first-child{border-top:0}.cnli{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.cnlp{font-size:12px;font-weight:800;color:#2c6e49}.cnlp em{font-style:normal;margin-left:6px;padding:1px 7px;border-radius:999px;background:#ff7a1a;color:#fff;font-size:10.5px}.cnli b{font-size:14.5px;line-height:1.3;word-break:keep-all}.cnli small{font-size:12px;color:var(--sub)}.cnlb{display:flex;flex-direction:column;gap:6px;flex:0 0 auto}.cnlb button,.mtb button{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--bg,#fff);font-size:12.5px;font-weight:700;color:var(--fg);white-space:nowrap}.cnlb button:hover,.mtb button:hover{border-color:#c7d2fe;background:var(--mb)}
+.mtb{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}.mtg{margin-top:10px}
+.pdv .pdb{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:8px;display:flex;flex-direction:column;align-items:center;gap:8px;touch-action:pan-x pan-y pinch-zoom}.pdp{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.35);max-width:100%;flex:0 0 auto}.pdp canvas{display:block;max-width:100%}.pdm{margin:40px 16px;text-align:center;opacity:.8}
 @media (min-width:1024px){.cnv.zoom .cnvp img{width:1080px}}
 .cnvf{text-align:center;font-size:12px;opacity:.6;padding:8px 0 max(10px,env(safe-area-inset-bottom))}
 /* 실시간 베스트 도서 */
@@ -669,6 +673,8 @@ window.fetch=async(url,o={})=>{const p=new URL(url,location.href).pathname;if(!p
     if(p==="/api/books"){const t=await tok(),bh={"X-Code":encodeURIComponent(code)};if(t)bh.Authorization="Bearer "+t;const r=await _fetch(url,{headers:bh});if(r.status===401)return new Response(JSON.stringify({error:"접속 코드가 맞지 않아요."}),{status:401});return r}
     if(p==="/api/best")return _fetch(url); // 실시간 베스트(서버 함수, 공개 정보)
     if(p==="/api/cards")return ok(await rpc("rc_cards",{p_code:code})); // 우수 독후감 카드뉴스(직원 전용)
+    if(p==="/api/pdf")return ok({b64:await rpc("rc_pdf",{p_code:code,p_set:b.set})}); // 독후감 모음 PDF(직원 전용)
+    if(p==="/api/mates")return ok(await rpc("rc_mates_list",{p_code:code})); // 우수·최우수 메이트 집계(직원 전용)
     if(p==="/api/saseo")return ok({books:[],keys:{saseo:false}});
     if(p==="/api/meta")return ok({});
     if(p==="/api/like")await rpc("rc_like",{p_code:code,p_review_id:b.id,p_uid:me});
@@ -803,10 +809,30 @@ function bestCard(Y){
   const fin=Y.done||BEST_PICK[Y.y];
   return `<div class="bestc"><div class="bt">🏆 ${Y.y}년 최우수 메이트${fin?"":" 후보 · 집계 중"}</div><div class="av big">${esc(u.slice(0,1))}<span class="ab">🏆</span></div><b class="bn">${esc(u)}${u===NAME?" (나)":""}</b><div class="mc2">독후감 ${s.n}편 · 공감 ${s.l} · 우수 메이트 ${s.w}회</div>${tr?`<div class="rv">${esc(tr.book)}</div>`:""}</div>`;
 }
-const segBar=()=>`<div class="seg"><button class="${rtab==="m"?"on":""}" onclick="rtab='m';render()">월간 우수 메이트</button><button class="${rtab==="y"?"on":""}" onclick="rtab='y';render()">연간 최우수 메이트</button></div>`;
+const segBar=()=>`<div class="seg"><button class="${rtab==="m"?"on":""}" onclick="rtab='m';render()">격월 우수 메이트</button><button class="${rtab==="y"?"on":""}" onclick="rtab='y';render()">연간 최우수 메이트</button></div>`;
+// ===== 우수·최우수 메이트 (2개월 단위) — 독후감 모음 PDF의 참여 명단과 ★(카드뉴스 소개) 기준, 직원 전용 DB(rc_mates)에서 받아 집계 =====
+// 우수 메이트: 그 2개월 동안 카드뉴스로 소개된 우수 독후감 작성자(★)
+// 최우수 메이트: 한 해 동안 우수 선정(★) 횟수가 가장 많은 사람 → 같으면 독후감 제출 편수가 많은 순 (BEST_PICK으로 직접 지정 가능)
+let MT=null,rp=0;
+async function loadMates(){if(MT!==null||!NAME)return;MT=[];try{const j=await api("/api/mates");MT=Array.isArray(j)?j:[]}catch(e){MT=[]}if(view==="rank"||view==="feed")render()}
+const mtPeriods=()=>[...new Set((MT||[]).map(r=>r.p))].sort();
+const mtLabel=p=>{const[y,m]=p.split("-").map(Number);return `${y}년 ${m}~${m+1}월`};
+function mtYear(y){const R=(MT||[]).filter(r=>r.p.startsWith(y+"-")),st={};
+  R.forEach(r=>{const o=st[r.n]||(st[r.n]={n:0,w:0,d:r.d,r:r.r,ps:[]});o.n++;o.d=r.d;o.r=r.r;if(r.s){o.w++;o.ps.push(r.p)}});
+  const order=Object.entries(st).sort((a,b)=>b[1].w-a[1].w||b[1].n-a[1].n||a[0].localeCompare(b[0],"ko"));
+  const ps=[...new Set(R.map(r=>r.p))].sort();
+  return{y,st,order,ps,best:BEST_PICK[y]||(order[0]&&order[0][1].w?order[0][0]:null),done:y<new Date().getFullYear()}}
+const mtStars=p=>(MT||[]).filter(r=>r.p===p&&r.s);
+function mtCard(r){return `<div class="mcard mc3"><div class="av">${esc(r.n.slice(0,1))}<span class="ab">${MEDAL}</span></div><div class="tx"><b>${esc(r.n)} <small class="hint">${esc(r.r||"")}</small>${r.n===NAME?" (나)":""}</b><div class="mc2">${esc(r.d||"")}</div>${r.b?`<div class="rv">${esc(r.b)}</div>`:""}</div></div>`}
 function monthsList(Y){return Y.months.length?Y.months.slice().reverse().map(o=>`<div class="rk sp2"><b>${o.m+1}월</b><span class="mlist">${o.mate.length?o.mate.map(u=>`<span>${MEDAL} ${esc(u)}</span>`).join(""):'<span class="hint">선정자 없음</span>'}</span></div>`).join(""):'<div class="hint">아직 기록이 없어요</div>'}
 function yearRank(Y){return Y.order.length?Y.order.slice(0,5).map(([u,o],i)=>`<div class="rk${i?"":" top"}"><span class="md">${i+1}</span><div class="rkm"><b>${esc(u)}${u===NAME?" (나)":""}</b></div><span class="hint rks">독후감 ${o.n}편<br>공감 ${o.l}</span></div>`).join(""):'<div class="hint">아직 기록이 없어요</div>'}
 function rankY(){
+  if(MT===null){setTimeout(loadMates,0);return `<div class="form">${segBar()}<div class="empty">메이트 기록을 불러오는 중…</div></div>`}
+  if(MT.length){const P=mtPeriods(),ys=[...new Set(P.map(p=>+p.slice(0,4)))],y=Math.min(Math.max(ry,ys[0]),ys[ys.length-1]),Y=mtYear(y),b=Y.best&&Y.st[Y.best];
+    const bc=b?`<div class="bestc"><div class="bt">🏆 ${y}년 최우수 메이트${Y.done||BEST_PICK[y]?"":" · 집계 중"}</div><div class="av big">${esc(Y.best.slice(0,1))}<span class="ab">🏆</span></div><b class="bn">${esc(Y.best)} <small class="hint">${esc(b.r||"")}</small>${Y.best===NAME?" (나)":""}</b><div class="mc2">${esc(b.d||"")}</div><div class="mc2">우수 선정 <b>${b.w}회</b> · 독후감 ${b.n}편</div></div>`:'<div class="empty" style="padding:30px 0">아직 집계된 기록이 없어요</div>';
+    const rk=Y.order.slice(0,10).map(([u,o],i)=>`<div class="rk${i?"":" top"}"><span class="md">${["👑","🥈","🥉"][i]||i+1}</span><div class="rkm"><b>${esc(u)}${u===NAME?" (나)":""}</b><small class="hint">${esc(o.d||"")}</small></div><span class="hint rks">우수 ${o.w}회<br>독후감 ${o.n}편</span></div>`).join("");
+    const hist=Y.ps.slice().reverse().map(p=>`<div class="rk sp2"><b>${esc(mtLabel(p).replace(/^\d{4}년 /,""))}</b><span class="mlist">${mtStars(p).map(r=>`<span>${MEDAL} ${esc(r.n)}</span>`).join("")||'<span class="hint">선정자 없음</span>'}</span></div>`).join("");
+    return `<div class="form">${segBar()}<div class="mnav"><button class="rnd" onclick="ry=${y}-1;render()" ${y<=ys[0]?"disabled":""} aria-label="이전 해">‹</button><div><div class="hint">연간 최우수 메이트</div><b style="font-size:20px;white-space:nowrap">🏆 ${y}년</b></div><button class="rnd" onclick="ry=${y}+1;render()" ${y>=ys[ys.length-1]?"disabled":""} aria-label="다음 해">›</button></div><span class="hint">한 해 우수 선정(카드뉴스 소개) 횟수 기준 · 같으면 독후감 제출 편수가 많은 순</span><div class="rkg"><div class="rkl">${bc}<h3 style="margin:14px 0 0">연간 순위</h3>${rk}</div><div class="rkr"><h3 class="rkh">2개월별 우수 메이트 기록</h3>${hist}</div></div></div>`}
   const Y=yearInfo(ry),cur=new Date().getFullYear();
   return `<div class="form">${segBar()}<div class="mnav"><button class="rnd" onclick="ry--;render()" aria-label="이전 해">‹</button><div><div class="hint">연간 최우수 메이트</div><b style="font-size:20px;white-space:nowrap">🏆 ${Y.y}년</b></div><button class="rnd" onclick="ry++;render()" ${ry>=cur?"disabled":""} aria-label="다음 해">›</button></div><span class="hint">1년간 독후감 편수 기준 · 같으면 받은 공감 수가 많은 순</span><div class="rkg"><div class="rkl">${bestCard(Y)}<h3 style="margin:14px 0 0">연간 활동 순위</h3>${yearRank(Y)}</div><div class="rkr"><h3 class="rkh">월별 우수 메이트 기록</h3>${monthsList(Y)}</div></div></div>`;
 }
@@ -894,9 +920,9 @@ function intro(){
   const M=mates(im),Y=yearInfo(iy);
   return `<div class="mt">
   <div class="hero"><h2>함께 성장하는 독서 파트너</h2><div class="logo"><svg viewBox="0 0 410 480" role="img" aria-label="서부 리딩 메이트 로고"><defs><linearGradient id="hR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bcd0ff"/></linearGradient><linearGradient id="hA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#c4b5fd"/></linearGradient><linearGradient id="hB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6f0ff"/><stop offset="1" stop-color="#a9c6ff"/></linearGradient></defs><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#hR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#hA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#hB)"/></svg></div><div class="big">서부 <br>리딩 메이트</div><p class="slg">READ. SHARE. RISE.</p></div>
-  <div class="jump"><button onclick="rtab='m';go('rank')">${MEDAL} 월간 우수 메이트</button><button onclick="rtab='y';go('rank')">🏆 연간 최우수 메이트</button></div>
+  <div class="jump"><button onclick="rtab='m';go('rank')">${MEDAL} 격월 우수 메이트</button><button onclick="rtab='y';go('rank')">🏆 연간 최우수 메이트</button></div>
   <div class="sec i-about"><div class="gt">독서 파트너를 지원합니다</div><p>읽고, 나누고, 함께 성장해요</p><div class="ico"><div><span>✍️</span><b>독후감</b></div><div><span>🃏</span><b>카드뉴스</b></div><div><span><svg class="bhrt" viewBox="0 0 48 48" role="img" aria-label="공감 말풍선"><defs><linearGradient id="bhB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f1ff"/><stop offset="1" stop-color="#c9c0f2"/></linearGradient><linearGradient id="bhH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7aa8"/><stop offset="1" stop-color="#ec3c78"/></linearGradient></defs><path d="M24 6C12.4 6 4 13.2 4 22c0 4.6 2.3 8.7 6 11.6L8.6 41.5c-.2 1 .9 1.7 1.7 1.1l7.5-5.1c2 .5 4 .7 6.2.7 11.6 0 20-7.2 20-16S35.6 6 24 6z" fill="url(#bhB)" stroke="#b3a8e8" stroke-width="1.2"/><path d="M24 30.5s-8.5-5-8.5-10.6c0-2.7 2.1-4.6 4.5-4.6 1.7 0 3.1.9 4 2.3.9-1.4 2.3-2.3 4-2.3 2.4 0 4.5 1.9 4.5 4.6 0 5.6-8.5 10.6-8.5 10.6z" fill="url(#bhH)"/><ellipse cx="20.2" cy="18.6" rx="1.8" ry="1.1" fill="#fff" opacity=".7" transform="rotate(-30 20.2 18.6)"/></svg></span><b>공감, 댓글</b></div><div><span>${MEDAL}</span><b>우수 메이트</b></div><div><span>🏆</span><b>최우수 메이트</b></div></div></div>
-  <div class="sec i-rule" style="padding-top:10px"><div class="gt gt2">매월 ${MATE_N}명 · 매년 1명 선정</div><div class="tiers2"><div class="tc"><span class="ti2">${MEDAL}</span><b>우수 메이트</b><small>매월 ${MATE_N}명</small><em>이달의 활동 TOP ${MATE_N}</em></div><span class="tarr">›</span><div class="tc gold"><span class="ti2">🏆</span><b>최우수 메이트</b><small>매년 1명</small><em>한 해 활동 1위</em></div></div><div class="crit"><span>📚 독후감 편수</span><i>＋</i><span>💗 받은 공감</span></div><p class="sm" style="margin-top:8px">편수가 같으면 공감이 많은 순</p></div>
+  <div class="sec i-rule" style="padding-top:10px"><div class="gt gt2">2개월마다 선정 · 매년 1명</div><div class="tiers2"><div class="tc"><span class="ti2">${MEDAL}</span><b>우수 메이트</b><small>2개월마다</small><em>카드뉴스 우수 독후감</em></div><span class="tarr">›</span><div class="tc gold"><span class="ti2">🏆</span><b>최우수 메이트</b><small>매년 1명</small><em>한 해 우수 선정 1위</em></div></div><div class="crit"><span>🏅 우수 선정 횟수</span><i>＋</i><span>📚 독후감 편수</span></div><p class="sm" style="margin-top:8px">선정 횟수가 같으면 독후감 편수가 많은 순</p></div>
     <div class="sup"><div class="k">지원1</div><h3>이름 옆 배지</h3><p>피드 이름 옆에 표시</p><div class="demo"><b>${esc(NAME||"나")}</b> <span class="bdg">${MEDAL}</span><span class="bdg">🏆</span><div class="hint" style="margin-top:6px">우수·최우수 메이트 · 1시간 전</div></div></div>
   <div class="sup"><div class="k">지원2</div><h3>연말 시상</h3><p>최우수 메이트 시상</p><div class="demo" style="font-size:52px">🏆</div></div>
   <div class="sup"><div class="k">지원3</div><h3>베스트 독후감</h3><p>매월 공감 1위 소개</p><div class="demo" style="font-size:52px">⭐</div></div>
@@ -941,7 +967,7 @@ async function load(force){
 // 다시 그릴 때 옆으로 넘기던 카드 위치·'모두 보기' 펼침 상태를 그대로 유지
 function keepUI(){const s={};document.querySelectorAll("#app .sitw").forEach((w,i)=>{const c=w.querySelector(".sitc");const k=w.className+"#"+i;s[k]={x:c?c.scrollLeft:0,open:[...w.querySelectorAll(".isl")].map(e=>e.classList.contains("open"))}});return s}
 function restoreUI(s){document.querySelectorAll("#app .sitw").forEach((w,i)=>{const v=s[w.className+"#"+i];if(!v)return;w.querySelectorAll(".isl").forEach((e,j)=>{if(v.open[j]){e.classList.add("open");const b=e.querySelector(".imore");if(b)b.textContent="접기 ▲"}});const c=w.querySelector(".sitc");if(c&&v.x){c.style.scrollSnapType="none";c.scrollLeft=v.x;requestAnimationFrame(()=>{c.style.scrollSnapType=""})}})}
-function render(){const ui=(view==="feed"||view==="rank"||view==="req")?keepUI():null;MC=mates(0);MC.best=prevBest();
+function render(){const ui=(view==="feed"||view==="rank"||view==="req")?keepUI():null;MC=mates(0);MC.best=prevBest();if(MT&&MT.length){const P=mtPeriods();MC.mate=mtStars(P[P.length-1]).map(r=>r.n);const ly=mtYear(new Date().getFullYear()-1);if(ly.best)MC.best=ly.best}
   $("#nav").innerHTML=(canInstall()&&view!=="login"&&view!=="join"?'<button class="lo ins" onclick="installApp()">📲 앱 설치</button>':"")+navHtml();
   document.body.classList.toggle("writing",view==="write");$("#app").innerHTML=view==="login"?login():view==="join"?join():view==="lock"?lockV():view==="rank"?rank():view==="write"?form():view==="intro"?intro():view==="req"?req():view==="done"?doneView():feed();$("#tabbar").innerHTML=tabbar();document.body.classList.toggle("nolog",view==="login"||view==="join");document.body.classList.toggle("guest",isGuest());document.body.classList.toggle("nofoot",!["intro","login","join"].includes(view));if(view==="req")document.querySelectorAll("details.rq[open]").forEach(fillMeta);if(ui&&(view==="feed"||view==="rank"))restoreUI(ui);
 }
@@ -975,7 +1001,7 @@ function installGuide(){
 }
 function logout(quiet){if(!quiet&&!confirm("로그아웃할까요?\n이 기기에 저장된 로그인 정보가 지워져요."))return;
   if(window.RC_AUTH)RC_AUTH.signOut();
-  NAME="";CODE="";GUEST=false;KAKAO=false;JOIN=null;CN=null;try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("g");localStorage.removeItem("rcdraft")}catch(e){}
+  NAME="";CODE="";GUEST=false;KAKAO=false;JOIN=null;CN=null;MT=null;rp=0;try{localStorage.removeItem("n");localStorage.removeItem("c");localStorage.removeItem("g");localStorage.removeItem("rcdraft")}catch(e){}
   D={reviews:[],likes:[],comments:[]};open={};openC={};view="login";render();scrollTo(0,0);setTimeout(()=>{const i=$("#ln");if(i)i.focus()},50)}
 function pwToggle(b){const i=$("#lc");i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"보기":"숨기기";b.setAttribute("aria-label",i.type==="password"?"접속 코드 보기":"접속 코드 숨기기");i.focus()}
 const LOGIN_HERO='<svg viewBox="0 0 410 480" aria-hidden="true"><defs><linearGradient id="lhR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bcd0ff"/></linearGradient><linearGradient id="lhA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#c4b5fd"/></linearGradient><linearGradient id="lhB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6f0ff"/><stop offset="1" stop-color="#a9c6ff"/></linearGradient></defs><path d="M140 85.9A200 200 0 1 0 270 85.9L270 124.5A164 164 0 1 1 140 124.5Z" fill="url(#lhR)"/><path d="M205 5 322 308 205 218 88 308Z" fill="url(#lhA)"/><path d="M40 322Q123 300 205 335Q287 300 370 322L370 372Q287 350 205 385Q123 350 40 372Z" fill="url(#lhB)"/></svg>';
@@ -985,7 +1011,7 @@ const lgShell=inner=>`<div class="lgw"><aside class="lpb"><div class="lpbi">
     <p class="lpk">함께 성장하는 독서 파트너</p>
     <h1>서부<br>리딩 메이트</h1>
     <p class="lps">READ. SHARE. RISE.</p>
-    <ul class="lpfeat"><li><i>✍️</i>독후감·카드뉴스로 나누는 인사이트</li><li><i>📚</i>분야별 필독서와 혁신 기업가 추천 도서</li><li><i>🏅</i>매월 우수 메이트 · 매년 최우수 메이트</li></ul>
+    <ul class="lpfeat"><li><i>✍️</i>독후감·카드뉴스로 나누는 인사이트</li><li><i>📚</i>분야별 필독서와 혁신 기업가 추천 도서</li><li><i>🏅</i>2개월마다 우수 메이트 · 매년 최우수 메이트</li></ul>
   </div></aside><div class="form lgn">
   <div class="lph"><span class="lgl">${LOGIN_LOGO}</span><div><b>서부 <em>리딩 메이트</em></b><span>함께 읽고, 나누고, 성장해요</span></div></div>
   ${inner}
@@ -1043,7 +1069,7 @@ async function joinGo(ev){if(ev)ev.preventDefault();lerr("");
   return false}
 const LOCKT={feed:["직원 독후감은 로그인 후 볼 수 있어요","서부 구성원이 남긴 독후감·카드뉴스·공감·댓글은 직원 전용 공간이에요"],
   write:["독후감 쓰기는 직원 전용이에요","로그인하면 책을 검색해 독후감과 카드뉴스를 올릴 수 있어요"],
-  rank:["메이트는 직원 전용이에요","월간 우수 메이트와 연간 최우수 메이트는<br>로그인 후 볼 수 있어요"]};
+  rank:["메이트는 직원 전용이에요","격월 우수 메이트와 연간 최우수 메이트는<br>로그인 후 볼 수 있어요"]};
 const lockBox=k=>{const t=LOCKT[k];return `<div class="lockb"><div class="lki">🔒</div><b>${t[0]}</b><p>${t[1]}</p><button class="btn${window.RC_AUTH?" kbtn2":""}" onclick="toLogin()">${window.RC_AUTH?KICON+"카카오로 로그인":"로그인"}</button></div>`};
 function lockV(){return `<div class="form lockw">${lockBox(LOCK)}<div class="lkgo"><button class="chip" onclick="go('feed')">🏠 추천 도서 보기</button><button class="chip" onclick="go('req')">📚 서부 필독서 보기</button></div></div>`}
 function loginForm(){return `
@@ -1207,7 +1233,32 @@ function fitCards(){const tb=document.querySelector(".tabbar"),hd=document.query
 addEventListener("resize",()=>{if(document.querySelector(".cnw .cnh"))fitCards()});
 function cnSec(){if(!NAME)return "";if(CN&&CN.length){cnFont();setTimeout(fitCards,0);setTimeout(fitCards,600)}if(CN===null){setTimeout(loadCards,0);return '<div class="cnw"><div class="cnload">🏆 우수 독후감 카드뉴스를 불러오는 중…</div></div>'}
   if(!CN.length)return '<div class="cnw"></div>';
-  return CN.map((S,si)=>`<div class="sitw cnw"><div class="sith"><b>🏆 우수 독후감 카드뉴스</b><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전">‹</button><button onclick="cnav(this,1)" aria-label="다음">›</button></span><span class="hint">${esc(S.set_title)} · 카드를 누르면 크게 볼 수 있어요</span></div><div class="sitc">${S.cards.map((c,ci)=>`${c.html?`<div class="cnc cnh" role="button" tabindex="0" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><div class="cnhb">${c.html}</div></div>`:`<button class="cnc" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><img src="${c.img}" alt="${esc(c.title)}" loading="lazy"><span>${ci+1} / ${S.cards.length}</span></button>`}`).join("")}</div></div>`).join("")}
+  // 최신 카드뉴스 1세트는 넘겨보기, 그 아래에 전체 목록(카드뉴스 보기 · 독후감 모음 PDF 바로보기)
+  const S=CN[0],si=0;
+  const top=`<div class="sitw cnw"><div class="sith"><b>🏆 우수 독후감 카드뉴스</b><span class="cnav"><button onclick="cnav(this,-1)" aria-label="이전">‹</button><button onclick="cnav(this,1)" aria-label="다음">›</button></span><span class="hint">${esc(S.set_title)} · 카드를 누르면 크게 볼 수 있어요</span></div><div class="sitc">${S.cards.map((c,ci)=>`${c.html?`<div class="cnc cnh" role="button" tabindex="0" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><div class="cnhb">${c.html}</div></div>`:`<button class="cnc" onclick="cnOpen(${si},${ci})" aria-label="${esc(c.title)} 크게 보기"><img src="${c.img}" alt="${esc(c.title)}" loading="lazy"><span>${ci+1} / ${S.cards.length}</span></button>`}`).join("")}</div>`;
+  const list=`<div class="cnl"><div class="cnlh"><b>📚 우수 독후감 모아보기</b><span class="hint">2개월마다 · 카드뉴스와 독후감 모음(PDF)</span></div><ul>${CN.map((X,i)=>{const pm=(X.period||"").replace(/^\d{4}년\s*/,"");return `<li${i===0?' class="now"':""}><div class="cnli"><span class="cnlp">${esc(pm||X.set_id)}${i===0?'<em>NEW</em>':""}</span><b>${esc(X.book||X.set_title)}</b><small>카드뉴스 ${X.cards.length}장</small></div><div class="cnlb"><button onclick="cnOpen(${i},0)" aria-label="${esc(X.book||"")} 카드뉴스 보기">🖼️ 카드뉴스</button>${X.pdf?`<button onclick="pdfOpen(${i})" aria-label="${esc(X.book||"")} 독후감 모음 PDF 보기">📄 독후감 모음</button>`:""}</div></li>`}).join("")}</ul></div>`;
+  return top+list+`</div>`}
+// ===== 독후감 모음 PDF 바로보기 (직원 전용 DB에서 받아 pdf.js로 화면에 그림 · 파일은 공개 저장소에 없음) =====
+const PDFB={};let pdfLib=null;
+const pdfJs=()=>pdfLib||(pdfLib=new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";ok(window.pdfjsLib)};s.onerror=()=>{pdfLib=null;no(new Error("pdf"))};document.head.appendChild(s)}));
+async function pdfOpen(si){const S=CN&&CN[si];if(!S)return;const m=document.createElement("div");m.className="cnv pdv";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<div class="cnvh"><b>📄 ${esc(S.period||"")} · ${esc(S.book||"")} 독후감 모음</b><span class="cnvn">불러오는 중</span><button class="cnvz pdd" aria-label="PDF 저장" hidden>⬇ 저장</button><button class="cnvx" aria-label="닫기">✕</button></div><div class="pdb"><p class="pdm">독후감 모음을 불러오는 중…</p></div><div class="cnvf">위아래로 넘겨 보기 · 두 손가락으로 확대</div>`;
+  document.body.appendChild(m);document.body.style.overflow="hidden";
+  const close=()=>{m.remove();document.body.style.overflow="";document.removeEventListener("keydown",kd)},kd=e=>{if(e.key==="Escape")close()};
+  m.querySelector(".cnvx").onclick=close;document.addEventListener("keydown",kd);
+  const box=m.querySelector(".pdb"),n=m.querySelector(".cnvn"),msg=t=>{box.innerHTML=`<p class="pdm">${t}</p>`};
+  try{
+    if(!PDFB[S.set_id]){const j=await api("/api/pdf",{set:S.set_id});const b64=j&&j.b64;if(!b64)throw new Error("none");const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);PDFB[S.set_id]=u}
+    const bytes=PDFB[S.set_id],lib=await pdfJs();if(!m.isConnected)return;
+    const dl=m.querySelector(".pdd");dl.hidden=false;dl.onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));a.download=S.pdf_name||"독후감모음.pdf";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)};
+    const doc=await lib.getDocument({data:bytes.slice()}).promise;box.innerHTML="";n.textContent=doc.numPages+"쪽";
+    const W=Math.min(box.clientWidth-16,820),dpr=Math.min(window.devicePixelRatio||1,2.5);
+    const first=await doc.getPage(1),v1=first.getViewport({scale:1}),hh=Math.round(W*v1.height/v1.width);
+    const slots=[];for(let i=1;i<=doc.numPages;i++){const d=document.createElement("div");d.className="pdp";d.style.width=W+"px";d.style.height=hh+"px";d.dataset.p=i;box.appendChild(d);slots.push(d)}
+    const draw=async d=>{if(d.dataset.done)return;d.dataset.done=1;const pg=await doc.getPage(+d.dataset.p),v=pg.getViewport({scale:1}),sc=W*dpr/v.width,vp=pg.getViewport({scale:sc});const c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;c.style.width=W+"px";c.style.height=Math.round(W*v.height/v.width)+"px";d.style.height="auto";d.appendChild(c);await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise};
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)draw(e.target)}),{root:box,rootMargin:"900px 0px"});slots.forEach(d=>io.observe(d));
+    box.addEventListener("scroll",()=>{const t=box.scrollTop+box.clientHeight/3;let p=1;for(const d of slots){if(d.offsetTop<=t)p=+d.dataset.p;else break}n.textContent=p+" / "+doc.numPages},{passive:true});
+  }catch(e){msg("독후감 모음을 열지 못했어요. 잠시 후 다시 시도해 주세요.")}}
 function cnOpen(si,ci){const S=CN[si];if(!S)return;const m=document.createElement("div");m.className="cnv";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
   m.innerHTML=`<div class="cnvh"><b>${esc(S.set_title)}</b><span class="cnvn">${ci+1} / ${S.cards.length}</span><button class="cnvz" aria-label="확대">🔍 확대</button><button class="cnvx" aria-label="닫기">✕</button></div><div class="cnvs">${S.cards.map(c=>`<div class="cnvp">${c.html?`<div class="cnhb cnvh2">${c.html}</div>`:`<img src="${c.img}" alt="${esc(c.title)}">`}</div>`).join("")}</div><div class="cnvf">옆으로 넘기기 · 두 손가락으로 확대</div>`;
   document.body.appendChild(m);document.body.style.overflow="hidden";const sc=m.querySelector(".cnvs"),n=m.querySelector(".cnvn");
@@ -1240,6 +1291,9 @@ const tg=id=>{open[id]=!open[id];render()},tc=id=>{openC[id]=!openC[id];render()
 function ac(e,id){e.preventDefault();const i=e.target.querySelector("input"),t=i.value.trim();if(!t)return false;i.value="";act("/api/comment",{id,text:t});return false}
 function rank(){return cnSec()+(rtab==="y"?rankY():rankM())}
 function rankM(){
+  if(MT===null){setTimeout(loadMates,0);return `<div class="form">${segBar()}<div class="empty">메이트 기록을 불러오는 중…</div></div>`}
+  if(MT.length){const P=mtPeriods();rp=Math.min(Math.max(rp,0),P.length-1);const p=P[P.length-1-rp],S=mtStars(p),all=(MT||[]).filter(r=>r.p===p),cs=CN&&CN.findIndex(X=>X.set_id===p.slice(0,4)+"-"+p.slice(5)+String(+p.slice(5)+1).padStart(2,"0"));
+    return `<div class="form">${segBar()}<div class="mnav"><button class="rnd" onclick="rp++;render()" ${rp>=P.length-1?"disabled":""} aria-label="이전 기간">‹</button><div><div class="hint">2개월마다 선정 · 우수 메이트</div><b style="font-size:20px;white-space:nowrap">${MEDAL} ${esc(mtLabel(p))}</b></div><button class="rnd" onclick="rp--;render()" ${rp<=0?"disabled":""} aria-label="다음 기간">›</button></div><span class="hint">카드뉴스로 소개된 우수 독후감 작성자 · 이 기간 독후감 ${all.length}편 중 ${S.length}명</span>${cs>=0?`<div class="mtb"><button onclick="cnOpen(${cs},0)">🖼️ 이 기간 카드뉴스</button>${CN[cs].pdf?`<button onclick="pdfOpen(${cs})">📄 독후감 모음</button>`:""}</div>`:""}<div class="mg3 mtg">${S.map(mtCard).join("")}</div></div>`}
   const M=mates(rm),t0=new Date(),n=new Date(t0.getFullYear(),t0.getMonth()+rm,1),y=n.getFullYear(),m=n.getMonth(),s={};
   const MR=D.reviews.filter(r=>{const d=new Date(r.createdAt);return d.getFullYear()===y&&d.getMonth()===m}),lc=r=>D.likes.filter(l=>l.reviewId===r.id).length;
   MR.forEach(r=>{const o=s[r.uid]||(s[r.uid]={n:0,l:0});o.n++;o.l+=D.likes.filter(l=>l.reviewId===r.id&&l.uid!==r.uid).length});
