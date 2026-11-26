@@ -640,6 +640,7 @@ window.RC_AUTH={legacy:false, // 전환 기간: 접속 코드 로그인도 허�
     GUEST=false;try{localStorage.removeItem("g")}catch(e){}
     if(me.name){NAME=me.name;CODE="";KAKAO=true;JOIN=null;try{localStorage.setItem("n",NAME);localStorage.removeItem("c")}catch(e){}if(view==="login"||view==="join")view="intro"}
     else{NAME="";JOIN={nick:jwtNick(SESS.at)};view="join"}},
+  async roster(c){return await rpc("rc_roster",{p_code:c})},
   async join(c,n,d){const me=await rpc("rc_join",{p_code:c,p_name:n,p_dept:d});NAME=me.name;CODE="";KAKAO=true;JOIN=null;GUEST=false;try{localStorage.setItem("n",NAME);localStorage.removeItem("c");localStorage.removeItem("g")}catch(e){}return me},
   signOut(){const t=SESS&&SESS.at;saveS(null);if(t)_fetch(SB_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SB_KEY,Authorization:"Bearer "+t}}).catch(()=>{})}};
 const rpc=async(fn,args)=>{const t=await tok(),hd={"apikey":SB_KEY,"Content-Type":"application/json"};if(t)hd.Authorization="Bearer "+t;
@@ -996,21 +997,39 @@ function login(){const A=window.RC_AUTH,code=!A||A.legacy;
   ${A?`<button type="button" class="kbtn" onclick="RC_AUTH.kakao()">${KICON}카카오로 로그인</button>`:""}
   ${A&&code?'<details class="lcode"><summary>사내 접속 코드로 로그인</summary>':""}${code?loginForm():""}${A&&code?"</details>":""}
   ${guestBtn()}`)}
-function join(){const j=JOIN||{};return lgShell(`<div class="lpt"><h2>직원 등록</h2><p>처음 한 번만 입력하면 다음부터는 카카오로 바로 들어와요</p></div>
+function join(){const j=JOIN||{};JR=null;return lgShell(`<div class="lpt"><h2>직원 등록</h2><p>처음 한 번만 입력하면 다음부터는 카카오로 바로 들어와요</p></div>
   <div class="jme">${KICON}<span>카카오 계정${j.nick?` <b>${esc(j.nick)}</b>`:""}으로 로그인했어요</span></div>
   <form class="lgf" onsubmit="return joinGo(event)" novalidate>
-    <label for="jn">이름<span class="hint">피드와 메이트 순위에 표시돼요</span><input id="jn" maxlength="20" value="${esc(j.nick||"")}" placeholder="예: 홍길동" autocomplete="name"></label>
+    <label for="lc">사내 접속 코드<span class="hint">코드를 확인하면 이름을 고를 수 있어요</span><span class="pw"><input id="lc" type="password" placeholder="관리자에게 받은 공통 코드" autocomplete="off" oninput="jrReset()"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
+    <div id="js2" hidden>
+    <label for="jns">이름<span class="hint">이름을 고르면 부서가 자동으로 채워져요</span><select id="jns" onchange="jnPick()"></select><input id="jn" maxlength="20" value="${esc(j.nick||"")}" placeholder="예: 홍길동" autocomplete="name" hidden></label>
     <label for="jd">부서<select id="jd" onchange="jdOther()"><option value="">부서를 선택해 주세요</option>${DEPTS.map(([g,L])=>L?`<optgroup label="${esc(g)}">${L.map(d=>`<option>${esc(d)}</option>`).join("")}</optgroup>`:`<option>${esc(g)}</option>`).join("")}<option value="__etc">기타 (직접 입력)</option></select><input id="jdx" maxlength="20" placeholder="부서 이름을 입력해 주세요" hidden></label>
-    <label for="lc">사내 접속 코드<span class="pw"><input id="lc" type="password" placeholder="관리자에게 받은 공통 코드" autocomplete="off"><button type="button" class="eye" onclick="pwToggle(this)" aria-label="접속 코드 보기">보기</button></span></label>
+    </div>
     <p id="lerr" class="lerr" role="alert" aria-live="polite"></p>
-    <button class="btn lbtn" id="jgo" type="submit">등록하고 시작하기</button>
+    <button class="btn lbtn" id="jgo" type="submit">코드 확인</button>
   </form>
   <button type="button" class="gbtn sm2" onclick="logout(1)">취소하고 처음으로</button>`)}
 // 서부사료 조직 (조직이 바뀌면 여기만 고치세요) — [부문, [소속 팀…]] 또는 [부서]
 const DEPTS=[["경영진",["회장","사장","부사장"]],["경영관리부문",["경영관리부문(이사)","경영기획팀","재무팀","전산팀","사업지원/법무팀","구매팀"]],["사업·마케팅",["사업1팀","사업2팀","사업3팀","FC사업본부","양돈사료","계열화사업","마케팅팀"]],["생산연구부문",["생산연구부문(상무이사)","생산본부","생산공무팀","연구개발팀(R&D)","품질경영팀"]],["운영관리"],["GMG"]];
 function jdOther(){const x=$("#jdx"),o=$("#jd").value==="__etc";x.hidden=!o;if(o)x.focus()}
 function jbad(el,msg){document.querySelectorAll(".lgf .bad").forEach(e=>e.classList.remove("bad"));lerr(msg);if(el){el.classList.add("bad");el.scrollIntoView({block:"center",behavior:"smooth"});setTimeout(()=>el.focus(),250);el.addEventListener("input",()=>el.classList.remove("bad"),{once:true});el.addEventListener("change",()=>el.classList.remove("bad"),{once:true})}}
-async function joinGo(ev){if(ev)ev.preventDefault();lerr("");const n=$("#jn").value.trim(),sel=$("#jd").value,d=sel==="__etc"?$("#jdx").value.trim():sel,c=$("#lc").value.trim(),b=$("#jgo");
+// 직원 명단(이름→부서)은 서버(직원 전용 DB)에만 있고, 접속 코드를 확인해야 받아와요
+let JR=null;
+function jrReset(){if(!JR)return;JR=null;$("#js2").hidden=true;$("#jgo").textContent="코드 확인"}
+async function jrLoad(c){const b=$("#jgo");b.disabled=true;b.textContent="확인 중…";
+  try{const L=await RC_AUTH.roster(c);JR=Array.isArray(L)?L:[];
+    $("#jns").innerHTML=`<option value="">이름을 선택해 주세요</option>${JR.map((r,i)=>`<option value="${i}"${r.t?" disabled":""}>${esc(r.n)} · ${esc(r.d)}${r.t?" (가입됨)":""}</option>`).join("")}<option value="__etc">목록에 없어요 (직접 입력)</option>`;
+    $("#js2").hidden=false;b.textContent="등록하고 시작하기";lerr("");document.querySelectorAll(".lgf .bad").forEach(e=>e.classList.remove("bad"));setTimeout(()=>$("#jns").focus(),50)}
+  catch(e){b.textContent="코드 확인";const m=String(e&&e.message||e);jbad($("#lc").closest(".pw")||$("#lc"),/invalid_code/.test(m)?"접속 코드가 맞지 않아요. 다시 확인해 주세요.":/not_logged_in/.test(m)?"카카오 로그인이 만료됐어요. 다시 로그인해 주세요.":"잠시 후 다시 시도해 주세요.")}
+  finally{b.disabled=false}}
+function jnPick(){const v=$("#jns").value,x=$("#jn"),o=v==="__etc";x.hidden=!o;if(o){x.focus();return}
+  const r=JR&&JR[+v];if(!r||v==="")return;const s=$("#jd");
+  if([...s.options].some(op=>op.value===r.d||op.text===r.d)){s.value=r.d;$("#jdx").hidden=true}else{s.value="__etc";$("#jdx").hidden=false;$("#jdx").value=r.d}}
+async function joinGo(ev){if(ev)ev.preventDefault();lerr("");
+  if(!JR){const c=$("#lc").value.trim();if(!c)return jbad($("#lc").closest(".pw")||$("#lc"),"사내 접속 코드를 입력해 주세요. (관리자에게 받은 공통 코드)"),false;await jrLoad(c);return false}
+  const nv=$("#jns").value;
+  if(nv==="")return jbad($("#jns"),"이름을 선택해 주세요."),false;
+  const n=nv==="__etc"?$("#jn").value.trim():JR[+nv].n,sel=$("#jd").value,d=sel==="__etc"?$("#jdx").value.trim():sel,c=$("#lc").value.trim(),b=$("#jgo");
   if(!n)return jbad($("#jn"),"이름을 입력해 주세요."),false;
   if(!sel)return jbad($("#jd"),"부서를 선택해 주세요."),false;
   if(!d)return jbad($("#jdx"),"부서 이름을 입력해 주세요."),false;
