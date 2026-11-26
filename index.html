@@ -1201,7 +1201,9 @@ async function loadCards(){if(CN!==null||!NAME)return;CN=[];try{const j=await ap
 const cnFont=()=>{if(document.getElementById("cnfont"))return;const l=document.createElement("link");l.id="cnfont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Myeongjo:wght@700;800&display=swap";document.head.appendChild(l)};
 // 목록 카드: 한 장이 휴대폰 한 화면(헤더·제목·하단 메뉴 제외)에 들어오도록 카드마다 자동 축소
 function fitCards(){const tb=document.querySelector(".tabbar"),hd=document.querySelector("header");const avail=innerHeight-(hd?hd.offsetHeight:56)-(innerWidth<1024&&tb?tb.offsetHeight:0)-120;
-  document.querySelectorAll(".cnw .cnc.cnh .cnhb").forEach(b=>{b.style.zoom=1;b.style.width="";const h=b.offsetHeight;const z=Math.max(.88,Math.min(1,avail/h));b.style.zoom=z.toFixed(3);b.style.width=(100/z).toFixed(2)+"%"})}
+  // 짧은 화면에서만 살짝 축소: zoom은 브라우저마다 폭 계산이 달라 우측이 잘리므로 transform(scale) + 카드 높이 보정으로 처리
+  document.querySelectorAll(".cnw .cnc.cnh .cnhb").forEach(b=>{const c=b.parentElement;b.style.zoom="";b.style.transform="";b.style.width="";c.style.height="";const h=b.offsetHeight,z=Math.max(.88,Math.min(1,avail/h));
+    if(z<1){b.style.width=(c.clientWidth/z).toFixed(1)+"px";b.style.transformOrigin="0 0";b.style.transform="scale("+z.toFixed(3)+")";c.style.height=(b.offsetHeight*z).toFixed(1)+"px"}})}
 addEventListener("resize",()=>{if(document.querySelector(".cnw .cnh"))fitCards()});
 function cnSec(){if(!NAME)return "";if(CN&&CN.length){cnFont();setTimeout(fitCards,0);setTimeout(fitCards,600)}if(CN===null){setTimeout(loadCards,0);return '<div class="cnw"><div class="cnload">🏆 우수 독후감 카드뉴스를 불러오는 중…</div></div>'}
   if(!CN.length)return '<div class="cnw"></div>';
